@@ -1,39 +1,31 @@
-export const runtime = "edge";
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-export default async function handler(req) {
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const body = await req.json();
-    const { profile, apiKey } = body;
-
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: "No API key provided" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const { profile, apiKey, prompt, mode } = req.body;
+    if (!apiKey) return res.status(400).json({ error: "No API key" });
 
     const today = new Date().toLocaleDateString("en-US", {
       weekday: "long", month: "long", day: "numeric", year: "numeric"
     });
 
-    const prompt = `Generate a personalized daily AI digest for this user. Today is ${today}.
+    const digestPrompt = mode === "summary"
+      ? prompt
+      : `Generate a personalized daily AI digest. Today is ${today}.
 
 USER PROFILE:
-- Profession: ${profile.profession}
-- 6-month goal: ${profile.goal}
-- Biggest challenge: ${profile.challenge}
-- Preferred news sources: ${profile.sources || "TechCrunch, Hacker News, a16z blog"}
-- YouTube channels: ${profile.youtube || "not specified"}
-- Delivery time: ${profile.delivery}
+- Profession: ${profile?.profession}
+- Goal: ${profile?.goal}
+- Challenge: ${profile?.challenge}
+- Preferred Sources: ${profile?.sources || "TechCrunch, Hacker News, a16z"}
+- YouTube Channels: ${profile?.youtube || "not specified"}
 
-Generate their digest in this EXACT format:
+Write the digest in this exact format:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 YOUR DAILY DIGEST · ${today}
@@ -41,49 +33,49 @@ YOUR DAILY DIGEST · ${today}
 
 🔥 TOP STORIES FOR YOU
 
-① [Specific recent AI news title]
+① [Real AI news title]
 [2-3 sentences: what happened + why it matters for their specific profession and goal]
 → [real source URL]
 
-② [Specific recent AI news title]
+② [Real AI news title]
 [2-3 sentences]
 → [real source URL]
 
-③ [Specific recent AI news title]
+③ [Real AI news title]
 [2-3 sentences]
 → [real source URL]
 
 
 📺 VIDEO WORTH YOUR TIME
 
-"[Specific relevant video title]"
+"[Specific video title]"
 Channel: [Real YouTube channel] · [duration]
-Why watch: [1-2 sentences tied to their specific goal]
-Skip to: [timestamp] for the key insight
+Why watch: [Tied to their specific goal]
+Skip to: [timestamp] for the key part
 
 
 💡 ONE THING TO DO TODAY
 
-[One very specific, immediately actionable task that moves them toward their goal. Reference their actual profession.]
+[One specific, immediately actionable task toward their goal]
 
 
 🛠️ TOOL OF THE DAY
 
 [Tool name] ([URL])
-What: [One line]
-Why today: [Why it fits their specific situation]
+What: [One line description]
+Why today: [Why it fits their situation]
 Free tier: [Yes/No + details]
 
 
 📊 SIGNAL THIS WEEK
 
-• [Industry insight bullet 1 — specific to their field]
-• [Industry insight bullet 2]
-• [Opportunity specific to their goal]
+• [Industry insight specific to their field]
+• [Trend relevant to their goal]
+• [One opportunity they can act on]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Be specific. Reference their actual job and goals throughout. Use real, recent AI news and tools.`;
+Be very specific to their profile throughout. Reference their actual profession and goals.`;
 
     const grokRes = await fetch("https://api.x.ai/v1/chat/completions", {
       method: "POST",
@@ -97,35 +89,22 @@ Be specific. Reference their actual job and goals throughout. Use real, recent A
         messages: [
           {
             role: "system",
-            content: "You are a personalized AI news digest generator. You create specific, actionable daily digests tailored to each user's profession and goals. Always reference real AI tools, companies, and recent developments.",
+            content: "You are a personalized AI news digest generator. Create specific, actionable daily digests tailored to each user's profession and goals. Always use real AI tools and recent developments.",
           },
-          { role: "user", content: prompt },
+          { role: "user", content: digestPrompt },
         ],
       }),
     });
 
     if (!grokRes.ok) {
       const err = await grokRes.json();
-      return new Response(JSON.stringify({ error: err.error?.message || "Grok API error" }), {
-        status: grokRes.status,
-        headers: { "Content-Type": "application/json" },
-      });
+      return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
     }
 
     const data = await grokRes.json();
-    const content = data.choices[0].message.content;
+    return res.status(200).json({ content: data.choices[0].message.content });
 
-    return new Response(JSON.stringify({ content }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return res.status(500).json({ error: err.message });
   }
 }
