@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Digest — Your Personalized Growth Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0e;
+      --surface: #141416;
+      --accent: #e8c547;
+      --border: rgba(232,197,71,0.15);
+      --text: #e8e4dc;
+      --muted: #64748b;
+      --dim: #334155;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', 'Courier New', monospace; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 100; background: var(--bg);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 28px; height: 28px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--bg); }
+    .logo-text p:first-child { font-size: 11px; letter-spacing: 2px; color: var(--accent); }
+    .logo-text p:last-child { font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+    .header-btns { display: flex; gap: 8px; }
+    .hbtn {
+      padding: 5px 12px; background: transparent; font-family: inherit;
+      font-size: 9px; letter-spacing: 1px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.07); color: var(--dim);
+      transition: all .15s;
+    }
+    .hbtn.active { border-color: var(--border); color: var(--accent); }
+    .hbtn:hover { border-color: var(--border); color: var(--accent); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.9);
+      display: none; align-items: center; justify-content: center;
+      z-index: 300; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 32px; max-width: 360px; width: 100%;
+    }
+    .modal label { font-size: 10px; letter-spacing: 2px; color: var(--accent); display: block; margin-bottom: 12px; }
+    .modal p { font-size: 12px; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+    .modal input {
+      width: 100%; padding: 11px 14px; background: var(--bg);
+      border: 1px solid var(--border); color: var(--text);
+      font-size: 13px; font-family: inherit; margin-bottom: 14px; outline: none;
+    }
+    .modal-btns { display: flex; gap: 10px; }
+    .btn-cancel {
+      flex: 1; padding: 10px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.08); color: var(--muted);
+      cursor: pointer; font-family: inherit; font-size: 12px;
+    }
+    .btn-save {
+      flex: 1; padding: 10px; background: var(--accent);
+      border: none; color: var(--bg);
+      cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500;
+    }
+
+    /* CHAT */
+    .chat-body { flex: 1; overflow-y: auto; padding: 28px 20px; }
+    .chat-inner { max-width: 600px; margin: 0 auto; }
+    .msg { margin-bottom: 20px; display: flex; animation: fadeUp .25s ease; }
+    .msg.user { justify-content: flex-end; }
+    .bot-icon {
+      width: 24px; height: 24px; background: var(--accent); color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; margin-right: 12px; flex-shrink: 0; margin-top: 2px;
+    }
+    .msg-bubble {
+      max-width: 80%; font-size: 13px; line-height: 1.85;
+      color: #c8c4bc; white-space: pre-wrap; word-break: break-word;
+    }
+    .msg.user .msg-bubble {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 10px 16px; color: var(--text); max-width: 75%;
+    }
+    .typing { display: flex; align-items: center; margin-bottom: 20px; }
+    .typing .bot-icon { margin-right: 12px; }
+    .dot {
+      width: 5px; height: 5px; background: var(--accent);
+      border-radius: 50%; margin-right: 4px;
+      animation: blink 1.2s ease infinite;
+    }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+
+    /* QUICK BUTTONS */
+    .quick-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .qbtn {
+      padding: 10px 20px; background: transparent;
+      border: 1px solid var(--border); color: var(--accent);
+      cursor: pointer; font-family: inherit; font-size: 12px;
+      letter-spacing: 1px; transition: background .15s;
+    }
+    .qbtn:hover { background: rgba(232,197,71,.1); }
+
+    /* SUMMARY ACTIONS */
+    .summary-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-accept {
+      padding: 11px 28px; background: var(--accent); border: none;
+      color: var(--bg); cursor: pointer; font-family: inherit;
+      font-size: 11px; letter-spacing: 2px; font-weight: 500;
+    }
+    .btn-adjust {
+      padding: 11px 24px; background: transparent;
+      border: 1px solid var(--border); color: var(--accent);
+      cursor: pointer; font-family: inherit; font-size: 11px; letter-spacing: 1px;
+    }
+
+    /* INPUT AREA */
+    .input-area {
+      border-top: 1px solid var(--border);
+      padding: 16px 20px; background: var(--bg);
+      position: sticky; bottom: 0;
+    }
+    .input-inner { max-width: 600px; margin: 0 auto; }
+    .input-row { display: flex; gap: 10px; align-items: flex-end; }
+    textarea {
+      flex: 1; padding: 12px 14px; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text);
+      font-family: inherit; font-size: 13px; line-height: 1.6;
+      resize: none; outline: none; min-height: 48px;
+    }
+    textarea::placeholder { color: var(--dim); }
+    .send-btn {
+      padding: 12px 18px; background: var(--accent); border: none;
+      color: var(--bg); cursor: pointer; font-family: inherit;
+      font-size: 14px; flex-shrink: 0; height: 48px;
+    }
+    .optional-hint { font-size: 10px; color: var(--dim); margin-top: 8px; letter-spacing: 1px; }
+    .skip-link {
+      background: none; border: none; color: var(--dim);
+      cursor: pointer; font-family: inherit; font-size: 10px;
+      letter-spacing: 1px; margin-top: 10px; display: block; text-decoration: underline;
+    }
+
+    /* LOCKED */
+    .locked-view {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 20px; text-align: center;
+    }
+    .lock-icon {
+      width: 64px; height: 64px; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 24px;
+    }
+    .locked-card {
+      width: 100%; max-width: 480px; background: var(--surface);
+      border: 1px solid var(--border); padding: 24px; margin: 24px 0; text-align: left;
+    }
+    .locked-row {
+      display: flex; gap: 16px; padding-bottom: 12px; margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .locked-label { font-size: 11px; color: var(--muted); min-width: 90px; }
+    .locked-val { font-size: 12px; color: #94a3b8; }
+    .btn-digest {
+      padding: 13px 36px; background: var(--accent); border: none;
+      color: var(--bg); cursor: pointer; font-family: inherit;
+      font-size: 11px; letter-spacing: 2px;
+    }
+
+    /* DIGEST */
+    .digest-view { flex: 1; padding: 24px 20px; max-width: 640px; width: 100%; margin: 0 auto; }
+    .digest-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .digest-content {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 28px; font-size: 13px; line-height: 1.9;
+      color: #c8c4bc; white-space: pre-wrap; word-break: break-word;
+      margin-bottom: 16px;
+    }
+    .digest-btns { display: flex; gap: 10px; }
+    .btn-refresh {
+      padding: 11px 20px; background: transparent;
+      border: 1px solid var(--border); color: var(--accent);
+      cursor: pointer; font-family: inherit; font-size: 11px; letter-spacing: 1px;
+    }
+    .btn-back {
+      padding: 11px 20px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.07); color: var(--muted);
+      cursor: pointer; font-family: inherit; font-size: 11px; letter-spacing: 1px;
+    }
+    .spinner {
+      width: 36px; height: 36px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 80px auto 16px;
+    }
+    .generating-text { text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 2px; animation: pulse 1.5s ease infinite; }
+    .api-notice {
+      margin-top: 16px; padding: 14px 18px;
+      background: rgba(251,191,36,.05); border: 1px solid rgba(251,191,36,.15);
+      font-size: 12px; color: #fbbf24; line-height: 1.6;
+    }
+    .api-notice a { color: #fbbf24; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">◆</div>
+      <div class="logo-text">
+        <p>AI DIGEST</p>
+        <p id="phase-label">ONBOARDING</p>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="hbtn" id="api-btn" onclick="openApiModal()">API</button>
+      <button class="hbtn" onclick="resetAll()">RESET</button>
+    </div>
+  </div>
+
+  <!-- API MODAL -->
+  <div class="modal-overlay" id="api-modal">
+    <div class="modal">
+      <label>GROK API KEY</label>
+      <p>Paste your xAI Grok API key below. It's stored only in your browser — never sent anywhere except directly to xAI.</p>
+      <input type="password" id="api-input" placeholder="xai-xxxxxxxxxx" />
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeApiModal()">Cancel</button>
+        <button class="btn-save" onclick="saveApiKey()">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT VIEW -->
+  <div id="chat-view" style="display:flex; flex-direction:column; flex:1;">
+    <div class="chat-body" id="chat-body">
+      <div class="chat-inner" id="chat-inner"></div>
+    </div>
+    <div class="input-area" id="input-area" style="display:none;">
+      <div class="input-inner" id="input-inner"></div>
+    </div>
+  </div>
+
+  <!-- LOCKED VIEW -->
+  <div id="locked-view" class="locked-view" style="display:none;">
+    <div class="lock-icon">🔒</div>
+    <p style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:12px;">PROFILE LOCKED</p>
+    <p id="days-left" style="font-size:22px;color:var(--text);margin-bottom:8px;font-weight:300;"></p>
+    <p id="unlock-date" style="font-size:13px;color:var(--muted);margin-bottom:32px;line-height:1.6;"></p>
+    <div class="locked-card" id="profile-summary"></div>
+    <button class="btn-digest" onclick="showDigest()">VIEW TODAY'S DIGEST →</button>
+  </div>
+
+  <!-- DIGEST VIEW -->
+  <div id="digest-view" class="digest-view" style="display:none;">
+    <div class="digest-header">
+      <div>
+        <p style="font-size:15px;color:var(--text);margin-bottom:3px;">Today's Digest</p>
+        <p id="digest-date" style="font-size:11px;color:var(--muted);"></p>
+      </div>
+      <button class="hbtn active" onclick="openApiModal()">🔑 API</button>
+    </div>
+    <div id="digest-body"></div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let answers = {};
+let step = 0;
+let phase = "onboarding";
+let apiKey = localStorage.getItem("grok_key") || "";
+let feedbackMode = false;
+let summaryText = "";
+
+const FLOW = [
+  {
+    id: "welcome", type: "quick",
+    bot: "Hey! I'm your personal AI growth assistant.\n\nEvery day I scan AI news, Reddit, YouTube, and top blogs — then send you only what's relevant to YOUR profession and goals. No noise. Just signal.\n\nReady to set up your profile?",
+    options: ["Let's go →", "Tell me more first"],
+  },
+  {
+    id: "tell_more", type: "quick", conditional: true,
+    bot: "Here's what you'll get every day:\n\n① Top AI stories relevant to your work\n② A YouTube video worth your time (with summary)\n③ One actionable task toward your goal\n④ Tool of the day\n⑤ Industry signals\n\nAll tailored to you. Ready?",
+    options: ["Let's start →"],
+  },
+  {
+    id: "profession", type: "text",
+    bot: "What do you do for a living?\n\n(Be specific — the more detail, the better I can tailor your digest.)",
+    placeholder: "e.g. Hotel manager learning AI, building toward SaaS...",
+  },
+  {
+    id: "goal", type: "text",
+    bot: "Got it. What's the one big thing you're working toward in the next 6 months?",
+    placeholder: "e.g. Launch an AI SaaS product with subscription revenue...",
+  },
+  {
+    id: "challenge", type: "text",
+    bot: "What's your biggest challenge right now?",
+    placeholder: "e.g. Keeping up with AI while working full time...",
+  },
+  {
+    id: "sources", type: "text", optional: true,
+    bot: "Any favorite news sources or blogs you'd like me to monitor?\n\n(Optional — press Enter to skip, I'll pick the best ones for you)",
+    placeholder: "e.g. TechCrunch, Hacker News, a16z blog...",
+  },
+  {
+    id: "youtube", type: "text", optional: true,
+    bot: "Any YouTube channels you love? I'll track them and summarize new videos.\n\n(Optional — press Enter to skip)",
+    placeholder: "e.g. Fireship, Ali Abdaal, My First Million...",
+  },
+  {
+    id: "delivery", type: "text",
+    bot: "When would you like your digest? Include your timezone.",
+    placeholder: "e.g. 7am EST, 9pm GMT+3, 8am BST...",
+  },
+  {
+    id: "email", type: "text",
+    bot: "Last one — your email address?",
+    placeholder: "you@example.com",
+  },
+];
+
+let skipConditional = false;
+let currentFlowIndex = 0;
+
+function getFlow() {
+  return FLOW.filter(s => !s.conditional || !skipConditional);
+}
+
+// ── INIT ──
+window.onload = () => {
+  updateApiBtn();
+  const locked = localStorage.getItem("digest_locked");
+  const savedAnswers = localStorage.getItem("digest_answers");
+  if (locked && savedAnswers) {
+    const lockDate = new Date(locked);
+    if (new Date() < lockDate) {
+      answers = JSON.parse(savedAnswers);
+      showLockedView(lockDate);
+      return;
+    }
+  }
+  setTimeout(() => addBotMessage(FLOW[0].bot, () => renderInput()), 400);
+};
+
+// ── CHAT ──
+function addBotMessage(text, callback) {
+  const inner = document.getElementById("chat-inner");
+  const typing = document.createElement("div");
+  typing.className = "typing";
+  typing.innerHTML = `<div class="bot-icon">◆</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  inner.appendChild(typing);
+  scrollBottom();
+
+  const delay = Math.min(text.length * 11, 1100);
+  setTimeout(() => {
+    inner.removeChild(typing);
+    const msg = document.createElement("div");
+    msg.className = "msg bot";
+    msg.innerHTML = `<div class="bot-icon">◆</div><div class="msg-bubble">${text.replace(/\n/g,"<br/>")}</div>`;
+    inner.appendChild(msg);
+    scrollBottom();
+    if (callback) callback();
+  }, delay);
+}
+
+function addUserMessage(text) {
+  const inner = document.getElementById("chat-inner");
+  const msg = document.createElement("div");
+  msg.className = "msg user";
+  msg.innerHTML = `<div class="msg-bubble">${text}</div>`;
+  inner.appendChild(msg);
+  scrollBottom();
+}
+
+function scrollBottom() {
+  setTimeout(() => {
+    const body = document.getElementById("chat-body");
+    body.scrollTop = body.scrollHeight;
+  }, 50);
+}
+
+// ── INPUT RENDERING ──
+function renderInput() {
+  const flow = getFlow();
+  if (currentFlowIndex >= flow.length) return;
+  const current = flow[currentFlowIndex];
+  const area = document.getElementById("input-area");
+  const inner = document.getElementById("input-inner");
+  area.style.display = "block";
+
+  if (current.type === "quick") {
+    inner.innerHTML = `<div class="quick-btns">${current.options.map(o => `<button class="qbtn" onclick="handleQuick('${o}')">${o}</button>`).join("")}</div>`;
+  } else {
+    inner.innerHTML = `
+      <div class="input-row">
+        <textarea id="user-input" rows="2" placeholder="${current.placeholder || ""}" onkeydown="handleKey(event)"></textarea>
+        <button class="send-btn" onclick="handleSend()">→</button>
+      </div>
+      ${current.optional ? '<p class="optional-hint">OPTIONAL · ENTER TO SKIP</p><button class="skip-link" onclick="handleSend(true)">skip this →</button>' : ''}
+    `;
+    setTimeout(() => document.getElementById("user-input")?.focus(), 100);
+  }
+}
+
+function handleKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    handleSend();
+  }
+}
+
+function handleQuick(val) {
+  document.getElementById("input-area").style.display = "none";
+  addUserMessage(val);
+
+  if (val === "Tell me more first") {
+    skipConditional = false;
+    currentFlowIndex = 1; // tell_more
+    setTimeout(() => addBotMessage(FLOW[1].bot, renderInput), 300);
+    return;
+  }
+
+  if (val === "Let's go →" || val === "Let's start →") {
+    skipConditional = true;
+  }
+
+  advanceFlow(val);
+}
+
+function handleSend(skip = false) {
+  const input = document.getElementById("user-input");
+  const val = skip ? "" : (input?.value?.trim() || "");
+  const flow = getFlow();
+  const current = flow[currentFlowIndex];
+  if (!val && !current.optional && !skip) return;
+
+  document.getElementById("input-area").style.display = "none";
+  addUserMessage(val || "(skipped)");
+  advanceFlow(val);
+}
+
+function advanceFlow(val) {
+  const flow = getFlow();
+  const current = flow[currentFlowIndex];
+  answers[current.id] = val;
+
+  const next = flow[currentFlowIndex + 1];
+  if (!next || current.id === "email") {
+    // All done — generate summary
+    setTimeout(() => generateSummary(), 400);
+    return;
+  }
+
+  currentFlowIndex++;
+  setTimeout(() => addBotMessage(flow[currentFlowIndex].bot, renderInput), 300);
+}
+
+// ── SUMMARY ──
+async function generateSummary() {
+  const inner = document.getElementById("chat-inner");
+  const area = document.getElementById("input-area");
+  area.style.display = "none";
+
+  // Show typing
+  const typing = document.createElement("div");
+  typing.className = "typing";
+  typing.id = "summary-typing";
+  typing.innerHTML = `<div class="bot-icon">◆</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  inner.appendChild(typing);
+  scrollBottom();
+
+  let summary = "";
+
+  if (apiKey) {
+    try {
+      const res = await fetch("/api/digest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey,
+          profile: answers,
+          mode: "summary",
+          prompt: `Based on this user profile, write a clear, specific summary of what their daily digest will include. Then ask if they accept or have adjustments.
+
+Profile:
+- Profession: ${answers.profession}
+- Goal: ${answers.goal}
+- Challenge: ${answers.challenge}
+- Sources: ${answers.sources || "auto-selected"}
+- YouTube: ${answers.youtube || "auto-selected"}
+- Delivery: ${answers.delivery}
+
+Write 5-6 bullet points of exactly what I'll send them daily. Be specific to their profile. End with: "Does this sound right? Type any adjustments below, or click Accept to lock this in for 7 days."`,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        summary = data.content;
+      }
+    } catch (e) { console.log("API error:", e); }
+  }
+
+  if (!summary) {
+    summary = `Based on your profile, here's what I'll send you every day:\n\n📰 AI & Tech News — Stories relevant to hotel management + SaaS building (from TechCrunch, a16z, OpenAI blog)\n\n🤖 AI Tool Updates — New models, features, and releases that affect what you can build\n\n💡 SaaS Builder Insight — One specific tip or strategy toward launching your subscription product\n\n📺 YouTube Summary — Video picks from top AI/entrepreneurship channels with timestamps\n\n🛠️ Tool of the Day — One AI tool relevant to your transition from hospitality to SaaS\n\n📊 Industry Signal — What's happening in AI that you actually need to know\n\nDoes this sound right? Type any adjustments below, or click Accept to lock this in for 7 days.`;
+  }
+
+  document.getElementById("summary-typing")?.remove();
+  summaryText = summary;
+
+  const msg = document.createElement("div");
+  msg.className = "msg bot";
+  msg.id = "summary-msg";
+  msg.innerHTML = `
+    <div class="bot-icon">◆</div>
+    <div class="msg-bubble">
+      ${summary.replace(/\n/g, "<br/>")}
+      <div class="summary-actions">
+        <button class="btn-accept" onclick="handleAccept()">ACCEPT ✓</button>
+        <button class="btn-adjust" onclick="openFeedback()">I HAVE ADJUSTMENTS</button>
+      </div>
+    </div>`;
+  inner.appendChild(msg);
+  phase = "summary";
+  scrollBottom();
+}
+
+function openFeedback() {
+  const area = document.getElementById("input-area");
+  const inner = document.getElementById("input-inner");
+  area.style.display = "block";
+  inner.innerHTML = `
+    <p style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px;">TYPE YOUR ADJUSTMENTS</p>
+    <div class="input-row">
+      <textarea id="feedback-input" rows="2" placeholder="e.g. Also include crypto news, focus more on no-code tools..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFeedback();}"></textarea>
+      <button class="send-btn" onclick="sendFeedback()">→</button>
+    </div>
+    <button class="skip-link" onclick="handleAccept()">skip · accept as is</button>
+  `;
+  document.getElementById("feedback-input")?.focus();
+}
+
+async function sendFeedback() {
+  const val = document.getElementById("feedback-input")?.value?.trim();
+  if (!val) return;
+  document.getElementById("input-area").style.display = "none";
+  addUserMessage(val);
+  answers.feedback = (answers.feedback || "") + " " + val;
+
+  addBotMessage(`Got it — noted: "${val}"\n\nAnything else to adjust, or ready to accept?`, () => {
+    document.getElementById("input-area").style.display = "block";
+    document.getElementById("input-inner").innerHTML = `
+      <div class="summary-actions">
+        <button class="btn-accept" onclick="handleAccept()">ACCEPT ✓</button>
+        <button class="btn-adjust" onclick="openFeedback()">MORE ADJUSTMENTS</button>
+      </div>`;
+  });
+}
+
+// ── ACCEPT / LOCK ──
+function handleAccept() {
+  document.getElementById("input-area").style.display = "none";
+  addUserMessage("Accept ✓");
+
+  const lockDate = new Date();
+  lockDate.setDate(lockDate.getDate() + 7);
+  localStorage.setItem("digest_locked", lockDate.toISOString());
+  localStorage.setItem("digest_answers", JSON.stringify(answers));
+
+  setTimeout(() => {
+    addBotMessage(`You're all set! 🎉\n\nYour digest will arrive at ${answers.delivery || "your scheduled time"}.\n\nThis chat is now locked for 7 days — your digest goes straight to your inbox.\n\nSee you tomorrow! 👋`, () => {
+      setTimeout(() => showLockedView(lockDate), 1500);
+    });
+  }, 400);
+}
+
+// ── LOCKED VIEW ──
+function showLockedView(lockDate) {
+  document.getElementById("chat-view").style.display = "none";
+  document.getElementById("locked-view").style.display = "flex";
+  document.getElementById("phase-label").textContent = "PROFILE LOCKED";
+
+  const daysLeft = Math.max(0, Math.ceil((lockDate - new Date()) / 86400000));
+  document.getElementById("days-left").textContent = `${daysLeft} day${daysLeft !== 1 ? "s" : ""} remaining`;
+  document.getElementById("unlock-date").textContent = `Your digest is active. Check your inbox.\nYou can update your profile on ${lockDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.`;
+
+  const profileData = [
+    ["Profession", answers.profession],
+    ["Goal", answers.goal],
+    ["Delivery", answers.delivery],
+    ["Email", answers.email],
+  ].filter(([, v]) => v);
+
+  document.getElementById("profile-summary").innerHTML = `
+    <p style="font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;">YOUR PROFILE</p>
+    ${profileData.map(([l, v]) => `
+      <div class="locked-row">
+        <span class="locked-label">${l}</span>
+        <span class="locked-val">${(v || "").slice(0, 60)}${(v || "").length > 60 ? "..." : ""}</span>
+      </div>`).join("")}`;
+}
+
+// ── DIGEST VIEW ──
+function showDigest() {
+  document.getElementById("locked-view").style.display = "none";
+  document.getElementById("digest-view").style.display = "block";
+  document.getElementById("phase-label").textContent = "TODAY'S DIGEST";
+  document.getElementById("digest-date").textContent = new Date().toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric"
+  });
+  generateDigest();
+}
+
+async function generateDigest() {
+  const body = document.getElementById("digest-body");
+  body.innerHTML = `<div class="spinner"></div><p class="generating-text">GENERATING YOUR DIGEST...</p>`;
+
+  if (apiKey) {
+    try {
+      const res = await fetch("/api/digest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, profile: answers }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        body.innerHTML = `
+          <div class="digest-content">${data.content.replace(/\n/g, "<br/>")}</div>
+          <div class="digest-btns">
+            <button class="btn-refresh" onclick="generateDigest()">↻ REFRESH</button>
+            <button class="btn-back" onclick="backToLocked()">← BACK</button>
+          </div>`;
+        return;
+      }
+    } catch (e) { console.log("API error:", e); }
+  }
+
+  // Fallback
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const mock = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR DAILY DIGEST · ${today}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔥 TOP STORIES FOR YOU
+
+① OpenAI rolls out operator-level API access for SaaS builders
+Developers can now build deeply integrated AI products with persistent memory and custom workflows. For someone building AI SaaS from scratch, this is the infrastructure you've been waiting for.
+→ openai.com/blog
+
+② Hospitality AI adoption jumps 34% — but most tools are generic
+New McKinsey report shows hotels using AI for ops, but the niche SaaS opportunity (guest experience, staff scheduling, revenue optimization) is still wide open.
+→ mckinsey.com
+
+③ Grok 3 now available with real-time web search
+xAI's latest model can browse live data. Ideal for building digest tools, research assistants, or any SaaS that needs current information.
+→ x.ai/blog
+
+📺 VIDEO WORTH YOUR TIME
+
+"I Built a SaaS in 30 Days With No Code (Here's How)"
+Channel: Greg Isenberg · 24 min
+Why watch: Directly maps your situation — non-technical background + big SaaS goal. Real numbers, real steps.
+Skip to: 7:20 for the pricing model breakdown
+
+💡 ONE THING TO DO TODAY
+
+Write down ONE problem from your hotel job that no current software solves well. One sentence. Then open ChatGPT and type: "How would an AI SaaS solve [your problem]? Give me 3 feature ideas and a pricing model." That's your SaaS idea starting.
+
+🛠️ TOOL OF THE DAY
+
+Lovable.dev (lovable.dev)
+What: Describe your app → get working code instantly, no coding needed
+Why today: Build your first SaaS prototype this week, not this year
+Free tier: Yes — 5 projects free
+
+📊 SIGNAL THIS WEEK
+• Niche vertical AI SaaS (hospitality, legal, healthcare) growing 3x faster than generic tools
+• $5–15/month subscriptions convert best for first-time SaaS founders
+• The biggest 2026 opportunity: AI for "offline" industries — hospitality is #3 on that list
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+  body.innerHTML = `
+    <div class="digest-content">${mock.replace(/\n/g, "<br/>")}</div>
+    <div class="api-notice">⚡ Demo digest — <button onclick="openApiModal()" style="background:none;border:none;color:#fbbf24;cursor:pointer;font-family:inherit;font-size:12px;text-decoration:underline;">Add your Grok API key</button> for real-time AI-generated content</div>
+    <div class="digest-btns" style="margin-top:14px;">
+      <button class="btn-refresh" onclick="generateDigest()">↻ REFRESH</button>
+      <button class="btn-back" onclick="backToLocked()">← BACK</button>
+    </div>`;
+}
+
+function backToLocked() {
+  document.getElementById("digest-view").style.display = "none";
+  document.getElementById("locked-view").style.display = "flex";
+  document.getElementById("phase-label").textContent = "PROFILE LOCKED";
+}
+
+// ── API MODAL ──
+function openApiModal() {
+  document.getElementById("api-modal").classList.add("open");
+  document.getElementById("api-input").value = apiKey;
+}
+function closeApiModal() {
+  document.getElementById("api-modal").classList.remove("open");
+}
+function saveApiKey() {
+  const val = document.getElementById("api-input").value.trim();
+  if (!val) return;
+  apiKey = val;
+  localStorage.setItem("grok_key", val);
+  updateApiBtn();
+  closeApiModal();
+}
+function updateApiBtn() {
+  const btn = document.getElementById("api-btn");
+  if (apiKey) { btn.textContent = "API ✓"; btn.classList.add("active"); }
+  else { btn.textContent = "API"; btn.classList.remove("active"); }
+}
+
+// ── RESET ──
+function resetAll() {
+  localStorage.removeItem("digest_locked");
+  localStorage.removeItem("digest_answers");
+  answers = {}; step = 0; phase = "onboarding";
+  currentFlowIndex = 0; skipConditional = false; summaryText = "";
+  document.getElementById("chat-inner").innerHTML = "";
+  document.getElementById("input-area").style.display = "none";
+  document.getElementById("chat-view").style.display = "flex";
+  document.getElementById("locked-view").style.display = "none";
+  document.getElementById("digest-view").style.display = "none";
+  document.getElementById("phase-label").textContent = "ONBOARDING";
+  setTimeout(() => addBotMessage(FLOW[0].bot, renderInput), 300);
+}
+</script>
+</body>
+</html>
