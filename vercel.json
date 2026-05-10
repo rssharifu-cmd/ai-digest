@@ -1,23 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/digest.js",
-      "use": "@vercel/edge"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
-    {
-      "src": "/api/digest",
-      "dest": "/api/digest.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/api/digest", "dest": "/api/digest.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
