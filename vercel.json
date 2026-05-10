@@ -1,7 +1,13 @@
 {
   "version": 2,
   "routes": [
-    { "src": "/api/digest", "dest": "/api/digest.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/api/digest",
+      "dest": "/api/digest.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
