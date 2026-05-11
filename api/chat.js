@@ -2,6 +2,15 @@ export const runtime = "edge";
 
 const GROK_URL = "https://api.x.ai/v1/chat/completions";
 const MODEL = "grok-3-latest";
+const GROK_TIMEOUT_MS = 45000;
+
+function grokSignal() {
+  try {
+    return AbortSignal.timeout(GROK_TIMEOUT_MS);
+  } catch {
+    return undefined;
+  }
+}
 
 const ONBOARDING_SYSTEM = `You are Signal — a concise, warm concierge for a paid daily email product called Signal (personalized AI industry news, YouTube picks, tools, and one actionable tip).
 
@@ -69,16 +78,32 @@ export default async function handler(req) {
         return json({ error: "messages array required" }, 400);
       }
 
+      // Some providers misbehave if the first post-system role is "assistant".
+      // Fold the opening assistant bubble into system, then send user-first history.
+      let system = ONBOARDING_SYSTEM;
+      let conv = messages;
+      if (messages[0]?.role === "assistant") {
+        system +=
+          "\n\nYou already opened the chat with this message (stay consistent; do not repeat it verbatim unless the user asks):\n---\n" +
+          messages[0].content +
+          "\n---";
+        conv = messages.slice(1);
+      }
+      if (conv.length === 0) {
+        return json({ error: "No user messages yet" }, 400);
+      }
+
       const grokRes = await fetch(GROK_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
+        signal: grokSignal(),
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 900,
-          messages: [{ role: "system", content: ONBOARDING_SYSTEM }, ...messages],
+          messages: [{ role: "system", content: system }, ...conv],
         }),
       });
 
@@ -126,6 +151,7 @@ End with exactly this sentence on its own line:
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
+        signal: grokSignal(),
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 1200,
@@ -237,6 +263,7 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
+        signal: grokSignal(),
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 1400,
@@ -263,6 +290,7 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
 
     return json({ error: "Unknown action" }, 400);
   } catch (err) {
-    return json({ error: err.message || "Server error" }, 500);
+    const msg = err?.name === "AbortError" ? "Grok request timed out — try again." : err.message || "Server error";
+    return json({ error: msg }, err?.name === "AbortError" ? 504 : 500);
   }
 }
