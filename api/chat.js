@@ -1,16 +1,11 @@
-export const runtime = "edge";
+/**
+ * Vercel Node.js Serverless — POST /api/chat
+ * GET /api/chat — quick health JSON (no Grok call)
+ */
 
 const GROK_URL = "https://api.x.ai/v1/chat/completions";
 const MODEL = "grok-3-latest";
 const GROK_TIMEOUT_MS = 45000;
-
-function grokSignal() {
-  try {
-    return AbortSignal.timeout(GROK_TIMEOUT_MS);
-  } catch {
-    return undefined;
-  }
-}
 
 const ONBOARDING_SYSTEM = `You are Signal — a concise, warm concierge for a paid daily email product called Signal (personalized AI industry news, YouTube picks, tools, and one actionable tip).
 
@@ -28,46 +23,73 @@ Rules:
 - When you have enough to personalize a daily digest, say clearly that you're almost ready to draft their profile summary for them to approve — but do not output the full structured profile until the app asks for a summary in a separate step.
 - Never ask them to paste API keys or credentials.`;
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
+function cors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
-export default async function handler(req) {
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
+async function grokFetch(apiKey, payload) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), GROK_TIMEOUT_MS);
+  try {
+    return await fetch(GROK_URL, {
+      method: "POST",
       headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parseBody(req) {
+  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
+    return req.body;
+  }
+  const raw = typeof req.body === "string" ? req.body : "";
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function handler(req, res) {
+  cors(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  if (req.method === "GET") {
+    return res.status(200).json({
+      ok: true,
+      route: "/api/chat",
+      runtime: "nodejs",
+      hint: "POST JSON with { action, messages?, profile?, adjustment?, apiKey? }",
     });
   }
 
   if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, 405);
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const body = await req.json();
+    const body = parseBody(req);
     const serverKey = (process.env.GROK_API_KEY || "").trim();
     const clientKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
     const apiKey = serverKey || clientKey;
 
     if (!apiKey) {
-      return json(
-        {
-          error:
-            "Missing Grok API key. Set GROK_API_KEY in Vercel project settings, or add your key in the app (development only).",
-        },
-        400
-      );
+      return res.status(400).json({
+        error:
+          "Missing Grok API key. Set GROK_API_KEY in Vercel project settings, or send apiKey in the JSON body (dev only).",
+      });
     }
 
     const action = body.action || "chat";
@@ -75,11 +97,9 @@ export default async function handler(req) {
     if (action === "chat") {
       const messages = body.messages;
       if (!Array.isArray(messages) || messages.length === 0) {
-        return json({ error: "messages array required" }, 400);
+        return res.status(400).json({ error: "messages array required" });
       }
 
-      // Some providers misbehave if the first post-system role is "assistant".
-      // Fold the opening assistant bubble into system, then send user-first history.
       let system = ONBOARDING_SYSTEM;
       let conv = messages;
       if (messages[0]?.role === "assistant") {
@@ -90,38 +110,30 @@ export default async function handler(req) {
         conv = messages.slice(1);
       }
       if (conv.length === 0) {
-        return json({ error: "No user messages yet" }, 400);
+        return res.status(400).json({ error: "No user messages yet" });
       }
 
-      const grokRes = await fetch(GROK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        signal: grokSignal(),
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 900,
-          messages: [{ role: "system", content: system }, ...conv],
-        }),
+      const grokRes = await grokFetch(apiKey, {
+        model: MODEL,
+        max_tokens: 900,
+        messages: [{ role: "system", content: system }, ...conv],
       });
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return json({ error: err.error?.message || "Grok API error" }, grokRes.status);
+        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
       const userTurns = messages.filter((m) => m.role === "user").length;
-      return json({ content, userTurns });
+      return res.status(200).json({ content, userTurns });
     }
 
     if (action === "summary") {
       const messages = body.messages;
       if (!Array.isArray(messages) || messages.length === 0) {
-        return json({ error: "messages required for summary" }, 400);
+        return res.status(400).json({ error: "messages required for summary" });
       }
 
       const transcript = messages
@@ -145,35 +157,27 @@ Write a profile summary the user will approve before their first digest. Use cle
 End with exactly this sentence on its own line:
 "Does this sound right? Share any adjustments in chat, or tap Accept to lock this profile for 7 days."`;
 
-      const grokRes = await fetch(GROK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        signal: grokSignal(),
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 1200,
-          messages: [
-            {
-              role: "system",
-              content:
-                "You write tight, accurate user profiles for a digest product. Only use facts from the chat; mark uncertainties briefly if needed.",
-            },
-            { role: "user", content: userPrompt },
-          ],
-        }),
+      const grokRes = await grokFetch(apiKey, {
+        model: MODEL,
+        max_tokens: 1200,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You write tight, accurate user profiles for a digest product. Only use facts from the chat; mark uncertainties briefly if needed.",
+          },
+          { role: "user", content: userPrompt },
+        ],
       });
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return json({ error: err.error?.message || "Grok API error" }, grokRes.status);
+        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
-      return json({ content });
+      return res.status(200).json({ content });
     }
 
     if (action === "digest") {
@@ -190,7 +194,7 @@ End with exactly this sentence on its own line:
           .join("\n");
 
       if (!narrative) {
-        return json({ error: "profile narrative required" }, 400);
+        return res.status(400).json({ error: "profile narrative required" });
       }
 
       const today = new Date().toLocaleDateString("en-US", {
@@ -257,40 +261,34 @@ Free tier: [Yes/No + details]
 
 Be specific to their profile. If you lack real-time data, clearly label plausible examples as illustrative and still make them useful.`;
 
-      const grokRes = await fetch(GROK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        signal: grokSignal(),
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 1400,
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are Signal's digest writer: sharp, non-generic, respects the user's time. Ground claims when possible; avoid hollow hype.",
-            },
-            { role: "user", content: prompt },
-          ],
-        }),
+      const grokRes = await grokFetch(apiKey, {
+        model: MODEL,
+        max_tokens: 1400,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are Signal's digest writer: sharp, non-generic, respects the user's time. Ground claims when possible; avoid hollow hype.",
+          },
+          { role: "user", content: prompt },
+        ],
       });
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return json({ error: err.error?.message || "Grok API error" }, grokRes.status);
+        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
-      return json({ content });
+      return res.status(200).json({ content });
     }
 
-    return json({ error: "Unknown action" }, 400);
+    return res.status(400).json({ error: "Unknown action" });
   } catch (err) {
     const msg = err?.name === "AbortError" ? "Grok request timed out — try again." : err.message || "Server error";
-    return json({ error: msg }, err?.name === "AbortError" ? 504 : 500);
+    return res.status(err?.name === "AbortError" ? 504 : 500).json({ error: msg });
   }
 }
+
+module.exports = handler;
