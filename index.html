@@ -496,13 +496,50 @@ function handleKey(e) {
 async function apiChat(body) {
   const payload = { ...body };
   if (apiKey) payload.apiKey = apiKey;
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json().catch(() => ({}));
+
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 60000);
+
+  let res;
+  try {
+    res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal,
+    });
+  } catch (e) {
+    clearTimeout(to);
+    if (e.name === "AbortError") {
+      throw new Error("Request timed out. Check your connection, Vercel env GROK_API_KEY, and redeploy.");
+    }
+    throw e;
+  }
+  clearTimeout(to);
+
+  const raw = await res.text();
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    if (raw.trimStart().startsWith("<!") || raw.trimStart().startsWith("<html")) {
+      throw new Error(
+        "Got a web page instead of JSON — /api/chat is not hitting the Edge function. Push the latest repo (no Next.js) and redeploy on Vercel."
+      );
+    }
+    throw new Error(raw.slice(0, 180) || "Invalid JSON from server");
+  }
+
   if (!res.ok) throw new Error(data.error || res.statusText || "Request failed");
+
+  if (body.action === "chat" || body.action === "summary" || body.action === "digest") {
+    const c = data.content;
+    if (typeof c !== "string" || !c.trim()) {
+      throw new Error(data.error || "Empty reply from AI. Check GROK_API_KEY and model access.");
+    }
+  }
+
   return data;
 }
 
