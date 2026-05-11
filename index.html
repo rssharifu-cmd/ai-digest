@@ -8,299 +8,99 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f2eb;
-      --ink: #1a1612;
-      --accent: #c8410a;
-      --gold: #d4a847;
-      --surface: #edeae2;
-      --border: rgba(26,22,18,0.12);
-      --muted: #7a7268;
-      --serif: 'Playfair Display', Georgia, serif;
-      --sans: 'DM Sans', system-ui, sans-serif;
+      --bg: #f5f2eb; --ink: #1a1612; --accent: #c8410a; --gold: #d4a847;
+      --surface: #edeae2; --border: rgba(26,22,18,0.12); --muted: #7a7268;
+      --serif: 'Playfair Display', Georgia, serif; --sans: 'DM Sans', system-ui, sans-serif;
     }
-
-    html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); overflow-x: hidden; }
-
-    /* Grain texture overlay */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 999; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      opacity: 0.4;
-    }
-
-    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    html, body { height:100%; background:var(--bg); color:var(--ink); font-family:var(--sans); overflow-x:hidden; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     @keyframes spin { to{transform:rotate(360deg)} }
-    @keyframes slideIn { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
     @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
-
     #app { display:flex; flex-direction:column; min-height:100vh; }
 
-    /* ── HEADER ── */
     .header {
-      padding: 20px 32px;
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(245,242,235,0.92);
-      backdrop-filter: blur(12px);
+      padding:18px 32px; display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;
+      background:rgba(245,242,235,0.95); backdrop-filter:blur(12px);
     }
     .logo { display:flex; align-items:center; gap:14px; }
-    .logo-mark {
-      width: 36px; height: 36px;
-      background: var(--ink); color: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--serif); font-size: 18px; font-style: italic;
-      border-radius: 2px;
-    }
-    .logo-name { font-family: var(--serif); font-size: 20px; letter-spacing: -0.5px; }
-    .logo-tag { font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-top: 1px; }
+    .logo-mark { width:36px; height:36px; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:18px; font-style:italic; border-radius:2px; }
+    .logo-name { font-family:var(--serif); font-size:20px; letter-spacing:-0.5px; }
+    .logo-tag { font-size:10px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; }
     .header-right { display:flex; align-items:center; gap:10px; }
-    .phase-pill {
-      padding: 4px 12px; border-radius: 20px;
-      background: var(--surface); border: 1px solid var(--border);
-      font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
-    }
-    .phase-pill.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-    .hbtn {
-      padding: 7px 14px; background: transparent; font-family: var(--sans);
-      font-size: 11px; letter-spacing: 1px; cursor: pointer;
-      border: 1px solid var(--border); color: var(--muted);
-      border-radius: 2px; transition: all .15s;
-    }
-    .hbtn:hover { border-color: var(--ink); color: var(--ink); }
-    .hbtn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .phase-pill { padding:4px 12px; border-radius:20px; background:var(--surface); border:1px solid var(--border); font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+    .phase-pill.active { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+    .hbtn { padding:7px 14px; background:transparent; font-family:var(--sans); font-size:11px; letter-spacing:1px; cursor:pointer; border:1px solid var(--border); color:var(--muted); border-radius:2px; transition:all .15s; }
+    .hbtn:hover { border-color:var(--ink); color:var(--ink); }
 
-    /* ── MODAL ── */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(26,22,18,0.6);
-      display: none; align-items: center; justify-content: center;
-      z-index: 500; padding: 24px; backdrop-filter: blur(4px);
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--bg); border: 1px solid var(--border);
-      padding: 40px; max-width: 400px; width: 100%;
-      border-radius: 4px; box-shadow: 0 32px 80px rgba(26,22,18,0.15);
-      animation: fadeUp .25s ease;
-    }
-    .modal-eyebrow { font-size: 9px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 16px; }
-    .modal h3 { font-family: var(--serif); font-size: 22px; margin-bottom: 8px; }
-    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.7; }
-    .modal input {
-      width: 100%; padding: 13px 16px; background: var(--surface);
-      border: 1px solid var(--border); color: var(--ink);
-      font-size: 13px; font-family: var(--sans); margin-bottom: 16px;
-      outline: none; border-radius: 2px; transition: border-color .15s;
-    }
-    .modal input:focus { border-color: var(--ink); }
-    .modal input::placeholder { color: var(--muted); }
-    .modal-btns { display: flex; gap: 10px; }
-    .btn-cancel {
-      flex: 1; padding: 12px; background: transparent; border: 1px solid var(--border);
-      color: var(--muted); cursor: pointer; font-family: var(--sans); font-size: 13px; border-radius: 2px;
-    }
-    .btn-save {
-      flex: 1; padding: 12px; background: var(--ink); border: none;
-      color: var(--bg); cursor: pointer; font-family: var(--sans); font-size: 13px;
-      font-weight: 500; border-radius: 2px; transition: background .15s;
-    }
-    .btn-save:hover { background: #2d2820; }
-
-    /* ── CHAT ── */
     .chat-view { flex:1; display:flex; flex-direction:column; }
-    .chat-body { flex:1; overflow-y:auto; padding: 48px 32px; }
-    .chat-inner { max-width: 680px; margin: 0 auto; }
-
-    .msg { margin-bottom: 28px; display:flex; gap: 16px; animation: fadeUp .3s ease; }
-    .msg.user { justify-content: flex-end; }
-
-    .bot-avatar {
-      width: 32px; height: 32px; background: var(--ink); color: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--serif); font-size: 14px; font-style: italic;
-      border-radius: 50%; flex-shrink: 0; margin-top: 2px;
-    }
-    .bot-bubble {
-      max-width: calc(100% - 48px);
-      font-size: 15px; line-height: 1.85; color: #2d2820;
-      font-weight: 300;
-    }
-    .user-bubble {
-      max-width: 72%; padding: 14px 20px;
-      background: var(--ink); color: var(--bg);
-      font-size: 14px; line-height: 1.7; border-radius: 20px 20px 4px 20px;
-      font-weight: 300;
-    }
-
-    /* Typing */
-    .typing { display:flex; gap:16px; align-items:center; margin-bottom: 28px; }
+    .chat-body { flex:1; overflow-y:auto; padding:48px 32px; }
+    .chat-inner { max-width:680px; margin:0 auto; }
+    .msg { margin-bottom:28px; display:flex; gap:16px; animation:fadeUp .3s ease; }
+    .msg.user { justify-content:flex-end; }
+    .bot-avatar { width:32px; height:32px; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:14px; font-style:italic; border-radius:50%; flex-shrink:0; margin-top:2px; }
+    .bot-bubble { max-width:calc(100% - 48px); font-size:15px; line-height:1.85; color:#2d2820; font-weight:300; }
+    .user-bubble { max-width:72%; padding:14px 20px; background:var(--ink); color:var(--bg); font-size:14px; line-height:1.7; border-radius:20px 20px 4px 20px; font-weight:300; }
+    .typing { display:flex; gap:16px; align-items:center; margin-bottom:28px; }
     .typing-dots { display:flex; gap:5px; }
-    .dot {
-      width: 6px; height: 6px; background: var(--muted);
-      border-radius: 50%; animation: blink 1.4s ease infinite;
-    }
-    .dot:nth-child(2) { animation-delay: .2s; }
-    .dot:nth-child(3) { animation-delay: .4s; }
+    .dot { width:6px; height:6px; background:var(--muted); border-radius:50%; animation:blink 1.4s ease infinite; }
+    .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+    .quick-wrap { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+    .qbtn { padding:11px 22px; background:var(--surface); border:1px solid var(--border); color:var(--ink); cursor:pointer; font-family:var(--sans); font-size:13px; border-radius:24px; transition:all .15s; }
+    .qbtn:hover { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+    .summary-actions { margin-top:24px; display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-accept { padding:13px 32px; background:var(--accent); border:none; color:#fff; cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:500; border-radius:2px; }
+    .btn-accept:hover { background:#a33508; }
+    .btn-adjust { padding:13px 24px; background:transparent; border:1px solid var(--border); color:var(--ink); cursor:pointer; font-family:var(--sans); font-size:13px; border-radius:2px; }
 
-    /* Quick buttons */
-    .quick-wrap { display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
-    .qbtn {
-      padding: 11px 22px; background: var(--surface);
-      border: 1px solid var(--border); color: var(--ink);
-      cursor: pointer; font-family: var(--sans); font-size: 13px;
-      border-radius: 24px; transition: all .15s; font-weight: 400;
-    }
-    .qbtn:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-
-    /* Summary actions */
-    .summary-actions { margin-top: 24px; display:flex; gap:12px; flex-wrap:wrap; }
-    .btn-accept {
-      padding: 13px 32px; background: var(--accent); border: none;
-      color: #fff; cursor: pointer; font-family: var(--sans);
-      font-size: 13px; font-weight: 500; border-radius: 2px;
-      transition: background .15s; letter-spacing: 0.5px;
-    }
-    .btn-accept:hover { background: #a33508; }
-    .btn-adjust {
-      padding: 13px 24px; background: transparent;
-      border: 1px solid var(--border); color: var(--ink);
-      cursor: pointer; font-family: var(--sans); font-size: 13px; border-radius: 2px;
-    }
-    .btn-adjust:hover { border-color: var(--ink); }
-
-    /* Input area */
-    .input-area {
-      border-top: 1px solid var(--border); padding: 20px 32px;
-      background: rgba(245,242,235,0.95); backdrop-filter: blur(8px);
-      position: sticky; bottom: 0;
-    }
-    .input-inner { max-width: 680px; margin: 0 auto; }
+    .input-area { border-top:1px solid var(--border); padding:20px 32px; background:rgba(245,242,235,0.97); backdrop-filter:blur(8px); position:sticky; bottom:0; }
+    .input-inner { max-width:680px; margin:0 auto; }
     .input-row { display:flex; gap:12px; align-items:flex-end; }
-    textarea {
-      flex:1; padding: 14px 18px; background: white;
-      border: 1px solid var(--border); color: var(--ink);
-      font-family: var(--sans); font-size: 14px; line-height: 1.6;
-      resize: none; outline: none; min-height: 52px; border-radius: 26px;
-      transition: border-color .15s; font-weight: 300;
-    }
-    textarea:focus { border-color: var(--ink); }
-    textarea::placeholder { color: var(--muted); }
-    .send-btn {
-      width: 52px; height: 52px; background: var(--ink); border: none;
-      color: var(--bg); cursor: pointer; font-size: 18px;
-      border-radius: 50%; flex-shrink: 0; transition: background .15s;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .send-btn:hover { background: #2d2820; }
-    .optional-hint { font-size: 11px; color: var(--muted); margin-top: 8px; letter-spacing: 0.5px; }
-    .skip-link {
-      background: none; border: none; color: var(--muted); cursor: pointer;
-      font-family: var(--sans); font-size: 11px; margin-top: 8px;
-      display: inline-block; text-decoration: underline; text-underline-offset: 3px;
-    }
+    textarea { flex:1; padding:14px 18px; background:white; border:1px solid var(--border); color:var(--ink); font-family:var(--sans); font-size:14px; line-height:1.6; resize:none; outline:none; min-height:52px; border-radius:26px; transition:border-color .15s; font-weight:300; }
+    textarea:focus { border-color:var(--ink); }
+    textarea::placeholder { color:var(--muted); }
+    .send-btn { width:52px; height:52px; background:var(--ink); border:none; color:var(--bg); cursor:pointer; font-size:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .send-btn:hover { background:#2d2820; }
+    .optional-hint { font-size:11px; color:var(--muted); margin-top:8px; }
+    .skip-link { background:none; border:none; color:var(--muted); cursor:pointer; font-family:var(--sans); font-size:11px; text-decoration:underline; text-underline-offset:3px; padding:0; }
 
-    /* ── LOCKED VIEW ── */
-    .locked-view {
-      flex:1; display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding: 60px 32px; text-align:center;
-    }
-    .locked-hero {
-      font-family: var(--serif); font-size: clamp(48px, 8vw, 80px);
-      line-height: 1.1; margin-bottom: 16px; letter-spacing: -2px;
-    }
-    .locked-hero em { font-style: italic; color: var(--accent); }
-    .locked-sub { font-size: 15px; color: var(--muted); margin-bottom: 48px; font-weight: 300; }
-    .locked-card {
-      width: 100%; max-width: 520px;
-      background: white; border: 1px solid var(--border);
-      padding: 32px; margin-bottom: 32px; text-align: left;
-      border-radius: 4px; box-shadow: 0 4px 24px rgba(26,22,18,0.06);
-    }
-    .locked-card-title { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 20px; }
-    .locked-row { display:flex; gap:20px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .locked-row:last-child { border-bottom: none; }
-    .locked-label { font-size: 11px; color: var(--muted); min-width: 90px; padding-top: 1px; }
-    .locked-val { font-size: 13px; color: var(--ink); font-weight: 400; flex:1; line-height: 1.5; }
-    .btn-primary {
-      padding: 16px 40px; background: var(--ink); border: none;
-      color: var(--bg); cursor: pointer; font-family: var(--sans);
-      font-size: 13px; font-weight: 500; border-radius: 2px;
-      letter-spacing: 0.5px; transition: background .15s;
-    }
-    .btn-primary:hover { background: #2d2820; }
-    .countdown-strip {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 32px; padding: 10px 20px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
-      font-size: 12px; color: var(--muted);
-    }
-    .countdown-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease infinite; }
+    .locked-view { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 32px; text-align:center; }
+    .locked-hero { font-family:var(--serif); font-size:clamp(44px,7vw,72px); line-height:1.1; margin-bottom:16px; letter-spacing:-2px; }
+    .locked-hero em { font-style:italic; color:var(--accent); }
+    .locked-sub { font-size:15px; color:var(--muted); margin-bottom:48px; font-weight:300; }
+    .locked-card { width:100%; max-width:520px; background:white; border:1px solid var(--border); padding:32px; margin-bottom:32px; text-align:left; border-radius:4px; box-shadow:0 4px 24px rgba(26,22,18,0.06); }
+    .locked-card-title { font-size:9px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-bottom:20px; }
+    .locked-row { display:flex; gap:20px; padding:12px 0; border-bottom:1px solid var(--border); }
+    .locked-row:last-child { border-bottom:none; }
+    .locked-label { font-size:11px; color:var(--muted); min-width:90px; padding-top:1px; }
+    .locked-val { font-size:13px; color:var(--ink); flex:1; line-height:1.5; }
+    .countdown-strip { display:flex; align-items:center; gap:8px; margin-bottom:32px; padding:10px 20px; background:var(--surface); border:1px solid var(--border); border-radius:24px; font-size:12px; color:var(--muted); }
+    .countdown-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; animation:pulse 2s ease infinite; }
+    .btn-primary { padding:16px 40px; background:var(--ink); border:none; color:var(--bg); cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:500; border-radius:2px; }
 
-    /* ── DIGEST VIEW ── */
-    .digest-view { flex:1; padding: 40px 32px; max-width: 720px; width:100%; margin:0 auto; }
-    .digest-header { margin-bottom: 32px; }
-    .digest-eyebrow { font-size: 9px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-    .digest-title { font-family: var(--serif); font-size: 32px; margin-bottom: 4px; letter-spacing: -0.5px; }
-    .digest-date { font-size: 13px; color: var(--muted); font-weight: 300; }
-    .digest-content {
-      background: white; border: 1px solid var(--border);
-      padding: 40px; font-size: 14px; line-height: 2;
-      color: #2d2820; white-space: pre-wrap; word-break: break-word;
-      margin-bottom: 20px; border-radius: 4px; font-weight: 300;
-      box-shadow: 0 4px 24px rgba(26,22,18,0.06);
-    }
+    .digest-view { flex:1; padding:40px 32px; max-width:720px; width:100%; margin:0 auto; }
+    .digest-eyebrow { font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:8px; }
+    .digest-title { font-family:var(--serif); font-size:32px; margin-bottom:4px; letter-spacing:-0.5px; }
+    .digest-date { font-size:13px; color:var(--muted); font-weight:300; margin-bottom:28px; }
+    .digest-content { background:white; border:1px solid var(--border); padding:40px; font-size:14px; line-height:2; color:#2d2820; white-space:pre-wrap; word-break:break-word; margin-bottom:20px; border-radius:4px; font-weight:300; box-shadow:0 4px 24px rgba(26,22,18,0.06); }
     .digest-btns { display:flex; gap:12px; }
-    .btn-outline {
-      padding: 11px 24px; background: transparent;
-      border: 1px solid var(--border); color: var(--ink);
-      cursor: pointer; font-family: var(--sans); font-size: 12px;
-      letter-spacing: 0.5px; border-radius: 2px; transition: all .15s;
-    }
-    .btn-outline:hover { border-color: var(--ink); }
-    .spinner {
-      width: 32px; height: 32px; border: 2px solid var(--border);
-      border-top-color: var(--accent); border-radius: 50%;
-      animation: spin .8s linear infinite; margin: 80px auto 16px;
-    }
-    .gen-text {
-      text-align: center; font-size: 12px; color: var(--muted);
-      letter-spacing: 2px; animation: pulse 1.5s ease infinite;
-      text-transform: uppercase;
-    }
-    .demo-notice {
-      margin-top: 16px; padding: 16px 20px;
-      border-left: 3px solid var(--gold);
-      background: rgba(212,168,71,0.06);
-      font-size: 12px; color: var(--muted); line-height: 1.7;
-    }
-    .demo-notice a, .demo-notice button {
-      color: var(--accent); background: none; border: none;
-      cursor: pointer; font-family: var(--sans); font-size: 12px;
-      text-decoration: underline; text-underline-offset: 3px;
-    }
+    .btn-outline { padding:11px 24px; background:transparent; border:1px solid var(--border); color:var(--ink); cursor:pointer; font-family:var(--sans); font-size:12px; border-radius:2px; transition:all .15s; }
+    .btn-outline:hover { border-color:var(--ink); }
+    .spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin:80px auto 16px; }
+    .gen-text { text-align:center; font-size:12px; color:var(--muted); letter-spacing:2px; animation:pulse 1.5s ease infinite; text-transform:uppercase; }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    @media (max-width: 600px) {
-      .header { padding: 16px 20px; }
-      .chat-body { padding: 32px 20px; }
-      .input-area { padding: 16px 20px; }
-      .digest-view { padding: 32px 20px; }
-      .digest-content { padding: 24px; }
-      .locked-view { padding: 40px 20px; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+    @media(max-width:600px) {
+      .header{padding:16px 20px;} .chat-body{padding:28px 16px;}
+      .input-area{padding:16px 20px;} .digest-view{padding:28px 16px;}
+      .locked-view{padding:40px 16px;}
     }
   </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="logo">
       <div class="logo-mark">S</div>
@@ -311,26 +111,10 @@
     </div>
     <div class="header-right">
       <span class="phase-pill active" id="phase-label">Onboarding</span>
-      <button class="hbtn" id="api-btn" onclick="openApiModal()">API Key</button>
       <button class="hbtn" onclick="resetAll()">Reset</button>
     </div>
   </div>
 
-  <!-- API MODAL -->
-  <div class="modal-overlay" id="api-modal">
-    <div class="modal">
-      <p class="modal-eyebrow">Configuration</p>
-      <h3>Connect your AI</h3>
-      <p>Paste your Grok API key below. It's stored only in your browser and sent directly to xAI — never anywhere else.</p>
-      <input type="password" id="api-input" placeholder="xai-xxxxxxxxxxxxxxxxxx" />
-      <div class="modal-btns">
-        <button class="btn-cancel" onclick="closeApiModal()">Cancel</button>
-        <button class="btn-save" onclick="saveApiKey()">Save & Connect</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHAT VIEW -->
   <div id="chat-view" class="chat-view">
     <div class="chat-body" id="chat-body">
       <div class="chat-inner" id="chat-inner"></div>
@@ -340,330 +124,268 @@
     </div>
   </div>
 
-  <!-- LOCKED VIEW -->
   <div id="locked-view" class="locked-view" style="display:none;">
-    <div class="countdown-strip">
-      <div class="countdown-dot"></div>
-      <span id="days-left-text">Profile active</span>
-    </div>
+    <div class="countdown-strip"><div class="countdown-dot"></div><span id="days-left-text"></span></div>
     <h1 class="locked-hero">Your daily<br/><em>signal</em><br/>is ready.</h1>
     <p class="locked-sub">Digest configured. Check your inbox each day.</p>
     <div class="locked-card" id="profile-card"></div>
     <button class="btn-primary" onclick="showDigest()">Preview today's digest →</button>
   </div>
 
-  <!-- DIGEST VIEW -->
   <div id="digest-view" class="digest-view" style="display:none;">
-    <div class="digest-header">
-      <p class="digest-eyebrow">Daily Intelligence</p>
-      <h2 class="digest-title">Your Digest</h2>
-      <p class="digest-date" id="digest-date"></p>
-    </div>
+    <p class="digest-eyebrow">Daily Intelligence</p>
+    <h2 class="digest-title">Your Digest</h2>
+    <p class="digest-date" id="digest-date"></p>
     <div id="digest-body"></div>
   </div>
-
 </div>
 
 <script>
-let answers = {}, phase = "onboarding", apiKey = localStorage.getItem("sig_key") || "";
-let currentFlowIndex = 0, skipConditional = false, summaryText = "";
+var answers = {}, flowIndex = 0, skipConditional = false, isTyping = false;
 
-const FLOW = [
-  {
-    id: "welcome", type: "quick",
-    bot: "Good to meet you.\n\nI'm Signal — your personal AI intelligence assistant. Every day I read the news, scan Reddit, track YouTube, and monitor AI company blogs so you don't have to.\n\nThen I send you exactly what matters for your work and goals. Nothing else.\n\nReady to set up your profile?",
-    options: ["Yes, let's begin →", "Tell me more first"],
-  },
-  {
-    id: "tell_more", type: "quick", conditional: true,
-    bot: "Here's what arrives in your inbox every morning:\n\n① The 3 AI stories that actually affect your work\n② One YouTube video worth watching — with a summary so you can decide\n③ A single action you can take today toward your goal\n④ One tool you probably haven't tried yet\n⑤ Industry signals from your sector\n\nAll of it tailored to who you are and what you're building.\n\nShall we begin?",
-    options: ["Let's do it →"],
-  },
-  {
-    id: "profession", type: "text",
-    bot: "First — what do you do?\n\nTell me in your own words. The more specific, the better your digest.",
-    placeholder: "e.g. I manage a boutique hotel and I'm learning AI development on the side...",
-  },
-  {
-    id: "goal", type: "text",
-    bot: "Interesting. Now tell me — what's the one thing you're genuinely working toward in the next six months?",
-    placeholder: "e.g. Launch an AI SaaS product with paying subscribers...",
-  },
-  {
-    id: "challenge", type: "text",
-    bot: "What's holding you back most right now?",
-    placeholder: "e.g. Keeping up with AI while working full time in hospitality...",
-  },
-  {
-    id: "sources", type: "text", optional: true,
-    bot: "Are there specific publications, blogs, or sites you'd like me to monitor?\n\n(Optional — I'll curate the best sources for your field if you skip this)",
-    placeholder: "e.g. TechCrunch, Hacker News, a16z blog, MIT Tech Review...",
-  },
-  {
-    id: "youtube", type: "text", optional: true,
-    bot: "Any YouTube channels you follow and want me to track?\n\n(Optional — I'll find the best ones for your goals if you skip)",
-    placeholder: "e.g. Fireship, Ali Abdaal, Greg Isenberg, My First Million...",
-  },
-  {
-    id: "delivery", type: "text",
-    bot: "When should your digest arrive? Include your timezone.",
-    placeholder: "e.g. 7:00am GST, 8am EST, 9pm GMT...",
-  },
-  {
-    id: "email", type: "text",
-    bot: "Last question — your email address?",
-    placeholder: "you@example.com",
-  },
+var FLOW = [
+  { id:'welcome', type:'quick',
+    bot:'Good to meet you.\n\nI\'m Signal — your personal AI intelligence assistant. Every day I read the news, scan Reddit, track YouTube, and monitor AI company blogs so you don\'t have to.\n\nThen I send you exactly what matters for your work and goals. Nothing else.\n\nReady to set up your profile?',
+    options:['Yes, let\'s begin','Tell me more first'] },
+  { id:'tell_more', type:'quick', conditional:true,
+    bot:'Here\'s what arrives in your inbox every morning:\n\n① The 3 AI stories that actually affect your work\n② One YouTube video worth watching — with a summary\n③ A single action you can take today toward your goal\n④ One tool you probably haven\'t tried yet\n⑤ Industry signals from your sector\n\nAll tailored to who you are and what you\'re building.\n\nShall we begin?',
+    options:['Let\'s do it'] },
+  { id:'profession', type:'text',
+    bot:'First — what do you do?\n\nTell me in your own words. The more specific, the better your digest.',
+    placeholder:'e.g. I manage a hotel and I\'m learning AI on the side...' },
+  { id:'goal', type:'text',
+    bot:'What\'s the one thing you\'re genuinely working toward in the next six months?',
+    placeholder:'e.g. Launch an AI SaaS product with paying subscribers...' },
+  { id:'challenge', type:'text',
+    bot:'What\'s holding you back most right now?',
+    placeholder:'e.g. Keeping up with AI while working full time...' },
+  { id:'sources', type:'text', optional:true,
+    bot:'Any specific publications or blogs you\'d like me to monitor?\n\n(Optional — I\'ll pick the best sources if you skip)',
+    placeholder:'e.g. TechCrunch, Hacker News, a16z blog...' },
+  { id:'youtube', type:'text', optional:true,
+    bot:'Any YouTube channels you follow and want me to track?\n\n(Optional)',
+    placeholder:'e.g. Fireship, Ali Abdaal, Greg Isenberg...' },
+  { id:'delivery', type:'text',
+    bot:'When should your digest arrive? Include your timezone.',
+    placeholder:'e.g. 7:00am GST, 8am EST...' },
+  { id:'email', type:'text',
+    bot:'Last question — your email address?',
+    placeholder:'you@example.com' }
 ];
 
 function getFlow() {
-  return FLOW.filter(s => !s.conditional || !skipConditional);
+  return FLOW.filter(function(s){ return !s.conditional || !skipConditional; });
 }
 
-window.onload = () => {
-  updateApiBtn();
-  const locked = localStorage.getItem("sig_locked");
-  const saved = localStorage.getItem("sig_answers");
+window.onload = function() {
+  var locked = localStorage.getItem('sig_locked');
+  var saved = localStorage.getItem('sig_answers');
   if (locked && saved) {
-    const lockDate = new Date(locked);
+    var lockDate = new Date(locked);
     if (new Date() < lockDate) {
       answers = JSON.parse(saved);
-      showLockedView(lockDate); return;
+      showLockedView(lockDate);
+      return;
     }
   }
-  setTimeout(() => addBot(FLOW[0].bot, renderInput), 600);
+  setTimeout(function(){ addBot(FLOW[0].bot, renderInput); }, 500);
 };
 
 function addBot(text, cb) {
-  const inner = document.getElementById("chat-inner");
-  const t = document.createElement("div");
-  t.className = "typing";
-  t.innerHTML = `<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  if (isTyping) return;
+  isTyping = true;
+  var inner = document.getElementById('chat-inner');
+  var t = document.createElement('div');
+  t.className = 'typing';
+  t.innerHTML = '<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
   inner.appendChild(t); scroll();
-  const delay = Math.min(text.length * 10, 900);
-  setTimeout(() => {
-    t.remove();
-    const m = document.createElement("div");
-    m.className = "msg bot";
-    m.style.animation = "fadeUp .3s ease";
-    m.innerHTML = `<div class="bot-avatar">S</div><div class="bot-bubble">${text.replace(/\n/g,"<br/>")}</div>`;
+  var delay = Math.min(text.length * 9, 1000);
+  setTimeout(function(){
+    t.remove(); isTyping = false;
+    var m = document.createElement('div');
+    m.className = 'msg bot';
+    m.innerHTML = '<div class="bot-avatar">S</div><div class="bot-bubble">' + text.replace(/\n/g,'<br/>') + '</div>';
     inner.appendChild(m); scroll();
     if (cb) cb();
   }, delay);
 }
 
 function addUser(text) {
-  const m = document.createElement("div");
-  m.className = "msg user";
-  m.innerHTML = `<div class="user-bubble">${text}</div>`;
-  document.getElementById("chat-inner").appendChild(m); scroll();
+  var m = document.createElement('div');
+  m.className = 'msg user';
+  m.innerHTML = '<div class="user-bubble">' + text + '</div>';
+  document.getElementById('chat-inner').appendChild(m); scroll();
 }
 
 function scroll() {
-  setTimeout(() => { const b = document.getElementById("chat-body"); b.scrollTop = b.scrollHeight; }, 60);
+  setTimeout(function(){ var b=document.getElementById('chat-body'); b.scrollTop=b.scrollHeight; }, 60);
 }
 
 function renderInput() {
-  const flow = getFlow();
-  if (currentFlowIndex >= flow.length) return;
-  const cur = flow[currentFlowIndex];
-  const area = document.getElementById("input-area");
-  const inner = document.getElementById("input-inner");
-  area.style.display = "block";
-
-  if (cur.type === "quick") {
-    inner.innerHTML = `<div class="quick-wrap">${cur.options.map(o => `<button class="qbtn" onclick="handleQuick('${o}')">${o}</button>`).join("")}</div>`;
+  var flow = getFlow();
+  if (flowIndex >= flow.length) return;
+  var cur = flow[flowIndex];
+  document.getElementById('input-area').style.display = 'block';
+  var inner = document.getElementById('input-inner');
+  if (cur.type === 'quick') {
+    var btns = cur.options.map(function(o){
+      return '<button class="qbtn" onclick="handleQuick(this.getAttribute(\'data-val\'))" data-val="' + o + '">' + o + '</button>';
+    }).join('');
+    inner.innerHTML = '<div class="quick-wrap">' + btns + '</div>';
   } else {
-    inner.innerHTML = `
-      <div class="input-row">
-        <textarea id="user-input" rows="1" placeholder="${cur.placeholder||""}" onkeydown="handleKey(event)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-        <button class="send-btn" onclick="handleSend()">→</button>
-      </div>
-      ${cur.optional ? '<p class="optional-hint">Optional — <button class="skip-link" onclick="handleSend(true)">skip this question →</button></p>' : ''}
-    `;
-    setTimeout(() => document.getElementById("user-input")?.focus(), 80);
+    inner.innerHTML =
+      '<div class="input-row">' +
+        '<textarea id="user-input" rows="1" placeholder="' + (cur.placeholder||'') + '" onkeydown="handleKey(event)" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'"></textarea>' +
+        '<button class="send-btn" onclick="handleSend()">→</button>' +
+      '</div>' +
+      (cur.optional ? '<p class="optional-hint">Optional — <button class="skip-link" onclick="handleSend(true)">skip this →</button></p>' : '');
+    setTimeout(function(){ var i=document.getElementById('user-input'); if(i) i.focus(); }, 100);
   }
 }
 
 function handleKey(e) {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); handleSend(); }
 }
 
 function handleQuick(val) {
-  document.getElementById("input-area").style.display = "none";
+  document.getElementById('input-area').style.display = 'none';
   addUser(val);
-  if (val.includes("more first")) { skipConditional = false; currentFlowIndex = 1; setTimeout(() => addBot(FLOW[1].bot, renderInput), 300); return; }
-  skipConditional = true;
-  advance(val);
+  var flow = getFlow();
+  answers[flow[flowIndex].id] = val;
+  if (val === 'Tell me more first') {
+    skipConditional = false; flowIndex = 1;
+    setTimeout(function(){ addBot(FLOW[1].bot, renderInput); }, 400);
+    return;
+  }
+  skipConditional = true; flowIndex++;
+  var newFlow = getFlow();
+  if (flowIndex >= newFlow.length){ setTimeout(generateSummary, 500); return; }
+  setTimeout(function(){ addBot(newFlow[flowIndex].bot, renderInput); }, 400);
 }
 
-function handleSend(skip=false) {
-  const inp = document.getElementById("user-input");
-  const val = skip ? "" : (inp?.value?.trim() || "");
-  const flow = getFlow();
-  if (!val && !flow[currentFlowIndex].optional && !skip) return;
-  document.getElementById("input-area").style.display = "none";
-  addUser(val || "Skipped");
-  advance(val);
-}
-
-function advance(val) {
-  const flow = getFlow();
-  answers[flow[currentFlowIndex].id] = val;
-  const next = flow[currentFlowIndex + 1];
-  if (!next || flow[currentFlowIndex].id === "email") { setTimeout(generateSummary, 500); return; }
-  currentFlowIndex++;
-  setTimeout(() => addBot(flow[currentFlowIndex].bot, renderInput), 350);
+function handleSend(skip) {
+  var inp = document.getElementById('user-input');
+  var val = skip ? '' : (inp ? inp.value.trim() : '');
+  var flow = getFlow(); var cur = flow[flowIndex];
+  if (!val && !cur.optional && !skip) return;
+  document.getElementById('input-area').style.display = 'none';
+  addUser(val || 'Skipped');
+  answers[cur.id] = val;
+  flowIndex++;
+  var newFlow = getFlow();
+  if (flowIndex >= newFlow.length){ setTimeout(generateSummary, 500); return; }
+  setTimeout(function(){ addBot(newFlow[flowIndex].bot, renderInput); }, 400);
 }
 
 async function generateSummary() {
-  const inner = document.getElementById("chat-inner");
-  const t = document.createElement("div");
-  t.className = "typing"; t.id = "sum-typing";
-  t.innerHTML = `<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  var inner = document.getElementById('chat-inner');
+  var t = document.createElement('div');
+  t.className='typing'; t.id='sum-typing';
+  t.innerHTML='<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
   inner.appendChild(t); scroll();
-
-  let summary = "";
-  if (apiKey) {
-    try {
-      const res = await fetch("/api/digest", {
-        method: "POST", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ apiKey, profile: answers, mode: "summary",
-          prompt: `Write a concise, specific summary of what this user's daily digest will include. Reference their actual profession and goals.
-
-Profile:
-- Profession: ${answers.profession}
-- Goal: ${answers.goal}  
-- Challenge: ${answers.challenge}
-- Sources: ${answers.sources||"auto-selected"}
-- YouTube: ${answers.youtube||"auto-selected"}
-- Delivery: ${answers.delivery}
-
-Write 5 bullet points covering exactly what they'll receive daily. Be specific to their profile. End with: "Does this sound right? Type any adjustments, or click Accept to lock this in for 7 days."` }),
-      });
-      if (res.ok) { const d = await res.json(); summary = d.content; }
-    } catch(e) {}
-  }
-
+  var summary = '';
+  try {
+    var res = await fetch('/api/digest', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ profile:answers, mode:'summary',
+        prompt:'Write a concise summary of what this user\'s daily digest will include.\n\nProfile:\n- Profession: '+answers.profession+'\n- Goal: '+answers.goal+'\n- Challenge: '+answers.challenge+'\n- Sources: '+(answers.sources||'auto-selected')+'\n- YouTube: '+(answers.youtube||'auto-selected')+'\n- Delivery: '+answers.delivery+'\n\nWrite 5 specific bullet points covering exactly what they\'ll receive daily. Be specific to their profile. End with: "Does this sound right? Type any adjustments, or click Accept to lock this in for 7 days."'
+      })
+    });
+    if (res.ok){ var d=await res.json(); summary=d.content; }
+  } catch(e){ console.log('err',e); }
   if (!summary) {
-    summary = `Here's what I'll send you every day, tailored to your profile:\n\n📰 AI & Tech News — Stories that matter for someone transitioning from hotel management into SaaS — OpenAI, Anthropic, Google, plus startup news\n\n🏗️ SaaS Builder Signals — Specific insights on building subscription products: pricing, validation, finding your first 100 users\n\n💡 Daily Action — One concrete step toward launching your AI SaaS, calibrated to what you can do around a full-time job\n\n📺 Video Pick — Curated from builders and AI channels, with a summary so you decide if it's worth 20 minutes\n\n🛠️ Tool of the Day — One AI tool relevant to your transition from hospitality into product building\n\nDoes this sound right? Type any adjustments, or click Accept to lock this in for 7 days.`;
+    summary = 'Here\'s what I\'ll send you every day:\n\n📰 AI & Tech News — Stories relevant to your work and transition into SaaS\n\n🏗️ SaaS Builder Signals — Pricing, validation, finding your first 100 users\n\n💡 Daily Action — One step toward your goal, calibrated to fit around a full-time job\n\n📺 Video Pick — From builders and AI channels, with a summary so you decide if it\'s worth watching\n\n🛠️ Tool of the Day — One AI tool relevant to your situation\n\nDoes this sound right? Type any adjustments, or click Accept to lock this in for 7 days.';
   }
-
-  document.getElementById("sum-typing")?.remove();
-  summaryText = summary;
-  const m = document.createElement("div");
-  m.className = "msg bot";
-  m.innerHTML = `<div class="bot-avatar">S</div><div class="bot-bubble">${summary.replace(/\n/g,"<br/>")}
-    <div class="summary-actions">
-      <button class="btn-accept" onclick="handleAccept()">Accept & Lock In ✓</button>
-      <button class="btn-adjust" onclick="openFeedback()">I have adjustments</button>
-    </div>
-  </div>`;
-  inner.appendChild(m); phase = "summary"; scroll();
+  var el=document.getElementById('sum-typing'); if(el) el.remove();
+  var m=document.createElement('div'); m.className='msg bot';
+  m.innerHTML='<div class="bot-avatar">S</div><div class="bot-bubble">'+summary.replace(/\n/g,'<br/>')+'<div class="summary-actions"><button class="btn-accept" onclick="handleAccept()">Accept & Lock In ✓</button><button class="btn-adjust" onclick="openFeedback()">I have adjustments</button></div></div>';
+  inner.appendChild(m); scroll();
 }
 
 function openFeedback() {
-  const area = document.getElementById("input-area");
-  const inner = document.getElementById("input-inner");
-  area.style.display = "block";
-  inner.innerHTML = `
-    <div class="input-row">
-      <textarea id="fb-input" rows="1" placeholder="e.g. Also include crypto, focus more on no-code tools..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFeedback();}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-      <button class="send-btn" onclick="sendFeedback()">→</button>
-    </div>
-    <p class="optional-hint"><button class="skip-link" onclick="handleAccept()">Skip adjustments — accept as is</button></p>`;
-  document.getElementById("fb-input")?.focus();
+  document.getElementById('input-area').style.display='block';
+  document.getElementById('input-inner').innerHTML=
+    '<div class="input-row"><textarea id="fb-input" rows="1" placeholder="e.g. Also include crypto news..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendFeedback();}" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'"></textarea><button class="send-btn" onclick="sendFeedback()">→</button></div>' +
+    '<p class="optional-hint"><button class="skip-link" onclick="handleAccept()">Skip — accept as is</button></p>';
+  var fb=document.getElementById('fb-input'); if(fb) fb.focus();
 }
 
 function sendFeedback() {
-  const val = document.getElementById("fb-input")?.value?.trim();
-  if (!val) return;
-  document.getElementById("input-area").style.display = "none";
-  addUser(val); answers.feedback = val;
-  setTimeout(() => addBot(`Noted — I've adjusted your digest to include: "${val}"\n\nAnything else, or ready to accept?`, () => {
-    document.getElementById("input-area").style.display = "block";
-    document.getElementById("input-inner").innerHTML = `<div class="summary-actions"><button class="btn-accept" onclick="handleAccept()">Accept & Lock In ✓</button><button class="btn-adjust" onclick="openFeedback()">More adjustments</button></div>`;
-  }), 400);
+  var inp=document.getElementById('fb-input'); var val=inp?inp.value.trim():'';
+  if(!val) return;
+  document.getElementById('input-area').style.display='none';
+  addUser(val); answers.feedback=val;
+  setTimeout(function(){
+    addBot('Noted — adjusted to include: "'+val+'"\n\nAnything else, or ready to accept?', function(){
+      document.getElementById('input-area').style.display='block';
+      document.getElementById('input-inner').innerHTML='<div class="summary-actions"><button class="btn-accept" onclick="handleAccept()">Accept & Lock In ✓</button><button class="btn-adjust" onclick="openFeedback()">More adjustments</button></div>';
+    });
+  }, 400);
 }
 
 function handleAccept() {
-  document.getElementById("input-area").style.display = "none";
-  addUser("Accept ✓");
-  const lock = new Date(); lock.setDate(lock.getDate()+7);
-  localStorage.setItem("sig_locked", lock.toISOString());
-  localStorage.setItem("sig_answers", JSON.stringify(answers));
-  setTimeout(() => addBot(`You're set. 🎉\n\nYour first digest arrives at ${answers.delivery||"your scheduled time"}.\n\nThis profile is locked for 7 days — I'll see you in your inbox.`, () => {
-    setTimeout(() => showLockedView(lock), 1800);
-  }), 400);
+  document.getElementById('input-area').style.display='none';
+  addUser('Accept ✓');
+  var lock=new Date(); lock.setDate(lock.getDate()+7);
+  localStorage.setItem('sig_locked',lock.toISOString());
+  localStorage.setItem('sig_answers',JSON.stringify(answers));
+  setTimeout(function(){
+    addBot('You\'re all set! 🎉\n\nYour first digest arrives at '+(answers.delivery||'your scheduled time')+'.\n\nThis profile is locked for 7 days — I\'ll see you in your inbox.', function(){
+      setTimeout(function(){ showLockedView(lock); }, 1800);
+    });
+  }, 400);
 }
 
 function showLockedView(lockDate) {
-  document.getElementById("chat-view").style.display = "none";
-  document.getElementById("locked-view").style.display = "flex";
-  document.getElementById("phase-label").textContent = "Active";
-  const days = Math.max(0, Math.ceil((lockDate - new Date()) / 86400000));
-  document.getElementById("days-left-text").textContent = `${days} day${days!==1?"s":""} until next update · ${lockDate.toLocaleDateString("en-US",{month:"long",day:"numeric"})}`;
-  const rows = [["Profession",answers.profession],["Goal",answers.goal],["Delivery",answers.delivery],["Email",answers.email]].filter(([,v])=>v);
-  document.getElementById("profile-card").innerHTML = `<p class="locked-card-title">Your Profile</p>${rows.map(([l,v])=>`<div class="locked-row"><span class="locked-label">${l}</span><span class="locked-val">${(v||"").slice(0,70)}${(v||"").length>70?"...":""}</span></div>`).join("")}`;
+  document.getElementById('chat-view').style.display='none';
+  document.getElementById('locked-view').style.display='flex';
+  document.getElementById('phase-label').textContent='Active';
+  var days=Math.max(0,Math.ceil((lockDate-new Date())/86400000));
+  document.getElementById('days-left-text').textContent=days+' day'+(days!==1?'s':'')+' until next update · '+lockDate.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  var rows=[['Profession',answers.profession],['Goal',answers.goal],['Delivery',answers.delivery],['Email',answers.email]].filter(function(r){return r[1];});
+  document.getElementById('profile-card').innerHTML='<p class="locked-card-title">Your Profile</p>'+
+    rows.map(function(r){ var v=(r[1]||'').slice(0,70)+((r[1]||'').length>70?'...':''); return '<div class="locked-row"><span class="locked-label">'+r[0]+'</span><span class="locked-val">'+v+'</span></div>'; }).join('');
 }
 
 function showDigest() {
-  document.getElementById("locked-view").style.display = "none";
-  document.getElementById("digest-view").style.display = "block";
-  document.getElementById("phase-label").textContent = "Digest";
-  document.getElementById("digest-date").textContent = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  document.getElementById('locked-view').style.display='none';
+  document.getElementById('digest-view').style.display='block';
+  document.getElementById('phase-label').textContent='Digest';
+  document.getElementById('digest-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   generateDigest();
 }
 
 async function generateDigest() {
-  const body = document.getElementById("digest-body");
-  body.innerHTML = `<div class="spinner"></div><p class="gen-text">Generating your digest...</p>`;
-  if (apiKey) {
-    try {
-      const res = await fetch("/api/digest", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ apiKey, profile: answers }),
-      });
-      if (res.ok) {
-        const d = await res.json();
-        body.innerHTML = `<div class="digest-content">${d.content.replace(/\n/g,"<br/>")}</div><div class="digest-btns"><button class="btn-outline" onclick="generateDigest()">↻ Refresh</button><button class="btn-outline" onclick="backToLocked()">← Back</button></div>`;
-        return;
-      }
-    } catch(e) {}
-  }
-  const today = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
-  const mock = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nYOUR DAILY DIGEST · ${today}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n🔥 TOP STORIES FOR YOU\n\n① OpenAI launches operator-level API for SaaS builders\nDevelopers now get persistent memory and custom workflow support. For someone building AI SaaS from scratch, this changes your infrastructure options significantly.\n→ openai.com/blog\n\n② Hospitality AI adoption jumps 34% — but niche tools are still wide open\nMcKinsey report shows hotels using AI for ops, but guest experience and revenue optimization SaaS is still a greenfield opportunity.\n→ mckinsey.com\n\n③ No-code AI app builders hit 2M users\nNon-technical founders are shipping AI products faster than ever. Your hotel background + AI learning puts you in a strong position.\n→ techcrunch.com\n\n\n📺 VIDEO WORTH YOUR TIME\n\n"How I Built a $10K/Month SaaS With No CS Degree"\nChannel: Greg Isenberg · 24 min\nWhy: Maps directly to your situation. Real numbers, real steps for non-technical founders.\nSkip to: 7:20 for the pricing model section\n\n\n💡 ONE THING TO DO TODAY\n\nWrite down one pain point from your hotel job that no software solves well. One sentence. Then ask ChatGPT: "How would an AI SaaS solve [this problem]?" That's how your product idea starts.\n\n\n🛠️ TOOL OF THE DAY\n\nLovable.dev (lovable.dev)\nWhat: Describe your app → working code, no coding needed\nWhy today: Build your first prototype this week, not this year\nFree tier: Yes — 5 projects\n\n\n📊 SIGNAL THIS WEEK\n\n• Niche vertical AI SaaS growing 3× faster than generic tools\n• $5–15/month subscriptions convert best for first-time founders\n• Hospitality is #3 on the list of industries ripe for AI disruption\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
-  body.innerHTML = `<div class="digest-content">${mock.replace(/\n/g,"<br/>")}</div><div class="demo-notice">This is a demo digest. <button onclick="openApiModal()">Add your Grok API key</button> to receive real-time, AI-generated content tailored to your profile.</div><div class="digest-btns" style="margin-top:16px"><button class="btn-outline" onclick="generateDigest()">↻ Refresh</button><button class="btn-outline" onclick="backToLocked()">← Back</button></div>`;
+  var body=document.getElementById('digest-body');
+  body.innerHTML='<div class="spinner"></div><p class="gen-text">Generating your digest...</p>';
+  try {
+    var res=await fetch('/api/digest',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({profile:answers})
+    });
+    if(res.ok){ var d=await res.json(); body.innerHTML='<div class="digest-content">'+d.content.replace(/\n/g,'<br/>')+'</div><div class="digest-btns"><button class="btn-outline" onclick="generateDigest()">↻ Refresh</button><button class="btn-outline" onclick="backToLocked()">← Back</button></div>'; return; }
+  } catch(e){ console.log('err',e); }
+  var today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  var mock='━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nYOUR DAILY DIGEST · '+today+'\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n🔥 TOP STORIES FOR YOU\n\n① OpenAI launches operator-level API\nDevelopers now get persistent memory and custom workflows — perfect for building AI SaaS products.\n→ openai.com/blog\n\n② Hospitality AI adoption jumps 34%\nHotels are using AI for ops, but niche SaaS (guest experience, revenue optimization) is still wide open.\n→ mckinsey.com\n\n③ No-code AI builders hit 2M users\nNon-technical founders are shipping AI products faster than ever.\n→ techcrunch.com\n\n\n📺 VIDEO WORTH YOUR TIME\n\n"How I Built a $10K/Month SaaS With No CS Degree"\nChannel: Greg Isenberg · 24 min\nWhy: Real numbers, real steps for non-technical founders.\nSkip to: 7:20 for pricing model\n\n\n💡 ONE THING TO DO TODAY\n\nWrite one pain point from your hotel job that no software solves. Then ask ChatGPT: "How would an AI SaaS solve [this]?" — That\'s your product idea.\n\n\n🛠️ TOOL OF THE DAY\n\nLovable.dev · Describe your app → working code, no coding needed · Free tier: Yes\n\n\n📊 SIGNAL THIS WEEK\n\n• Niche vertical AI SaaS growing 3× faster than generic tools\n• $5–15/month subscriptions convert best for first-time founders\n• Hospitality is #3 on the list of industries ripe for AI disruption\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  body.innerHTML='<div class="digest-content">'+mock.replace(/\n/g,'<br/>')+'</div><div class="digest-btns" style="margin-top:16px"><button class="btn-outline" onclick="generateDigest()">↻ Refresh</button><button class="btn-outline" onclick="backToLocked()">← Back</button></div>';
 }
 
 function backToLocked() {
-  document.getElementById("digest-view").style.display = "none";
-  document.getElementById("locked-view").style.display = "flex";
-  document.getElementById("phase-label").textContent = "Active";
+  document.getElementById('digest-view').style.display='none';
+  document.getElementById('locked-view').style.display='flex';
+  document.getElementById('phase-label').textContent='Active';
 }
 
-function openApiModal() { document.getElementById("api-modal").classList.add("open"); document.getElementById("api-input").value = apiKey; }
-function closeApiModal() { document.getElementById("api-modal").classList.remove("open"); }
-function saveApiKey() {
-  const v = document.getElementById("api-input").value.trim();
-  if (!v) return;
-  apiKey = v; localStorage.setItem("sig_key", v); updateApiBtn(); closeApiModal();
-}
-function updateApiBtn() {
-  const b = document.getElementById("api-btn");
-  b.textContent = apiKey ? "API ✓" : "API Key";
-  if (apiKey) b.classList.add("active"); else b.classList.remove("active");
-}
 function resetAll() {
-  localStorage.removeItem("sig_locked"); localStorage.removeItem("sig_answers");
-  answers={}; currentFlowIndex=0; skipConditional=false; summaryText=""; phase="onboarding";
-  document.getElementById("chat-inner").innerHTML = "";
-  document.getElementById("input-area").style.display = "none";
-  document.getElementById("chat-view").style.display = "flex";
-  document.getElementById("locked-view").style.display = "none";
-  document.getElementById("digest-view").style.display = "none";
-  document.getElementById("phase-label").textContent = "Onboarding";
-  setTimeout(() => addBot(FLOW[0].bot, renderInput), 300);
+  localStorage.removeItem('sig_locked'); localStorage.removeItem('sig_answers');
+  answers={}; flowIndex=0; skipConditional=false; isTyping=false;
+  document.getElementById('chat-inner').innerHTML='';
+  document.getElementById('input-area').style.display='none';
+  document.getElementById('chat-view').style.display='flex';
+  document.getElementById('locked-view').style.display='none';
+  document.getElementById('digest-view').style.display='none';
+  document.getElementById('phase-label').textContent='Onboarding';
+  setTimeout(function(){ addBot(FLOW[0].bot, renderInput); }, 300);
 }
 </script>
 </body>
