@@ -2,5 +2,11 @@
   "name": "signal",
   "private": true,
   "version": "1.0.0",
-  "description": "Static site + Vercel Edge API (no Next.js)"
+  "description": "Signal — public/ static + api/ serverless (Vercel native layout)",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@vercel/node": "^3.2.29"
+  }
 }
