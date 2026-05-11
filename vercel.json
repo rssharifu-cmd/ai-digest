@@ -1,8 +1,3 @@
 {
-  "version": 2,
-  "routes": [
-    { "src": "/api/chat", "dest": "/api/chat.js" },
-    { "src": "/api/digest", "dest": "/api/digest.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  "type": "module"
 }
