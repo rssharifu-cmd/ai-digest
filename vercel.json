@@ -1,3 +1,7 @@
 {
-  "type": "module"
+  "version": 2,
+  "routes": [
+    { "src": "/api/chat", "dest": "/api/chat.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
