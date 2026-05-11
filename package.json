@@ -1,3 +1,6 @@
 {
-  "type": "module"
+  "name": "signal",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static site + Vercel Edge API (no Next.js)"
 }
