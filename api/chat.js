@@ -1,65 +1,185 @@
+export const runtime = "edge";
 
-export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+const GROK_URL = "https://api.x.ai/v1/chat/completions";
+const MODEL = "grok-3-latest";
+
+const ONBOARDING_SYSTEM = `You are Signal — a concise, warm concierge for a paid daily email product called Signal (personalized AI industry news, YouTube picks, tools, and one actionable tip).
+
+Goals through natural chat (aim for roughly 6–10 user messages before wrapping):
+- Learn their name or how they like to be addressed (optional but nice).
+- What they do, seniority, industry, and time zone or region.
+- What outcomes they want over the next few months.
+- What they consider noise vs signal (topics, depth, risk tolerance).
+- Preferred delivery style (tone, length, any hard exclusions).
+
+Rules:
+- Ask ONE focused follow-up at a time unless they dump a long message — then acknowledge and ask the single most important next question.
+- No bullet interrogation lists; feel like a smart colleague, not a form.
+- Do not invent private facts about them; infer only from what they said.
+- When you have enough to personalize a daily digest, say clearly that you're almost ready to draft their profile summary for them to approve — but do not output the full structured profile until the app asks for a summary in a separate step.
+- Never ask them to paste API keys or credentials.`;
+
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
+export default async function handler(req) {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+  }
+
+  if (req.method !== "POST") {
+    return json({ error: "Method not allowed" }, 405);
+  }
 
   try {
-    const { messages, mode, profile } = req.body;
-    const apiKey = process.env.GROK_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "API key not configured" });
+    const body = await req.json();
+    const serverKey = (process.env.GROK_API_KEY || "").trim();
+    const clientKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
+    const apiKey = serverKey || clientKey;
 
-    let systemPrompt = "";
+    if (!apiKey) {
+      return json(
+        {
+          error:
+            "Missing Grok API key. Set GROK_API_KEY in Vercel project settings, or add your key in the app (development only).",
+        },
+        400
+      );
+    }
 
-    if (mode === "onboarding") {
-      systemPrompt = `You are Signal, a warm and intelligent AI assistant. Your job is to have a natural conversation to understand someone deeply before setting up their personalized daily news digest.
+    const action = body.action || "chat";
 
-CONVERSATION RULES:
-- Be warm, natural, and genuinely curious — like a smart friend, not a form
-- Ask ONE question at a time — never multiple
-- Listen carefully and react to what they say — acknowledge their answers before asking next
-- Ask follow-up questions based on their specific answers
-- If they say something interesting, dig deeper before moving on
-- After 6-10 exchanges when you truly understand them, end with a summary
+    if (action === "chat") {
+      const messages = body.messages;
+      if (!Array.isArray(messages) || messages.length === 0) {
+        return json({ error: "messages array required" }, 400);
+      }
 
-WHAT YOU NEED TO UNDERSTAND (naturally, through conversation):
-- What they do for work (profession, role, context)
-- What they're working toward (goals, ambitions)
-- What's holding them back (challenges)
-- Their relationship with AI (beginner, intermediate, advanced)
-- What kind of content helps them most
-- Any specific sources or channels they love
-- When they want their digest delivered
+      const grokRes = await fetch(GROK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 900,
+          messages: [{ role: "system", content: ONBOARDING_SYSTEM }, ...messages],
+        }),
+      });
 
-WHEN YOU HAVE ENOUGH INFO (after 6-10 messages):
-End with this exact JSON block after your message:
-[PROFILE_READY]
-{
-  "profession": "...",
-  "goal": "...",
-  "challenge": "...",
-  "ai_level": "...",
-  "interests": "...",
-  "sources": "...",
-  "youtube": "...",
-  "delivery": "...",
-  "summary": "Here's what I'll send you every day: ..."
-}
-[/PROFILE_READY]
+      if (!grokRes.ok) {
+        const err = await grokRes.json().catch(() => ({}));
+        return json({ error: err.error?.message || "Grok API error" }, grokRes.status);
+      }
 
-Start the conversation warmly. First message: introduce yourself briefly and ask one opening question.`;
-    } else if (mode === "digest") {
-      const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      systemPrompt = `You are Signal, a personalized AI digest generator. Generate today's digest for this user.
+      const data = await grokRes.json();
+      const content = data.choices?.[0]?.message?.content ?? "";
+      const userTurns = messages.filter((m) => m.role === "user").length;
+      return json({ content, userTurns });
+    }
 
-USER PROFILE:
-${JSON.stringify(profile, null, 2)}
+    if (action === "summary") {
+      const messages = body.messages;
+      if (!Array.isArray(messages) || messages.length === 0) {
+        return json({ error: "messages required for summary" }, 400);
+      }
 
-Today is ${today}.
+      const transcript = messages
+        .map((m) => `${m.role === "user" ? "User" : "Signal"}: ${m.content}`)
+        .join("\n\n");
 
-Generate a highly personalized digest in this format:
+      const adj =
+        typeof body.adjustment === "string" && body.adjustment.trim()
+          ? `\n\nThe user requests this revision before approving: ${body.adjustment.trim()}`
+          : "";
+
+      const userPrompt = `Here is the full onboarding chat:\n\n${transcript}${adj}\n\n---
+Write a profile summary the user will approve before their first digest. Use clear sections:
+
+1) Who they are (role, context)
+2) Goals & horizon
+3) Topics & sources signal (what to emphasize / avoid)
+4) Tone & length (how the daily email should feel)
+5) What "today's digest" will typically include (5 short bullets, specific to them)
+
+End with exactly this sentence on its own line:
+"Does this sound right? Share any adjustments in chat, or tap Accept to lock this profile for 7 days."`;
+
+      const grokRes = await fetch(GROK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1200,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You write tight, accurate user profiles for a digest product. Only use facts from the chat; mark uncertainties briefly if needed.",
+            },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+      });
+
+      if (!grokRes.ok) {
+        const err = await grokRes.json().catch(() => ({}));
+        return json({ error: err.error?.message || "Grok API error" }, grokRes.status);
+      }
+
+      const data = await grokRes.json();
+      const content = data.choices?.[0]?.message?.content ?? "";
+      return json({ content });
+    }
+
+    if (action === "digest") {
+      const profile = body.profile || {};
+      const narrative =
+        profile.narrative ||
+        profile.summary ||
+        [
+          profile.profession && `Profession: ${profile.profession}`,
+          profile.goal && `Goal: ${profile.goal}`,
+          profile.challenge && `Challenge: ${profile.challenge}`,
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+      if (!narrative) {
+        return json({ error: "profile narrative required" }, 400);
+      }
+
+      const today = new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      const prompt = `Generate a personalized daily AI digest for this user. Today is ${today}.
+
+APPROVED PROFILE (from onboarding):
+${narrative}
+
+Generate their digest in this EXACT format:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 YOUR DAILY DIGEST · ${today}
@@ -67,88 +187,82 @@ YOUR DAILY DIGEST · ${today}
 
 🔥 TOP STORIES FOR YOU
 
-① [Real specific AI news title]
-[2-3 sentences: what happened + why it matters specifically for their profession and goal]
-→ [real URL]
+① [Specific recent AI / industry story title]
+[2-3 sentences: what happened + why it matters for this person]
+→ [credible source URL or primary link]
 
-② [Real specific AI news title]
+② [Specific recent story title]
 [2-3 sentences]
-→ [real URL]
+→ [credible source URL]
 
-③ [Real specific AI news title]
+③ [Specific recent story title]
 [2-3 sentences]
-→ [real URL]
+→ [credible source URL]
 
 
 📺 VIDEO WORTH YOUR TIME
 
-"[Specific video title]"
-Channel: [Real channel] · [duration]
-Why watch: [Tied specifically to their goal]
-Skip to: [timestamp]
+"[Specific relevant video title]"
+Channel: [YouTube channel] · [duration]
+Why watch: [1-2 sentences tied to their goals]
+Skip to: [timestamp] for the key insight
 
 
 💡 ONE THING TO DO TODAY
 
-[One very specific, immediately actionable task toward their exact goal. Make it something they can do today around a full-time job.]
+[One concrete action for today]
 
 
 🛠️ TOOL OF THE DAY
 
 [Tool name] ([URL])
 What: [One line]
-Why today: [Specific to their situation]
-Free tier: [Yes/No]
+Why today: [Fit to their situation]
+Free tier: [Yes/No + details]
 
 
 📊 SIGNAL THIS WEEK
 
-• [Insight specific to their field]
-• [Trend relevant to their goal]
-• [One opportunity they can act on now]
+• [Insight 1]
+• [Insight 2]
+• [Insight 3]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Be very specific. Reference their actual job and goals throughout. Use real recent AI news.`;
+Be specific to their profile. If you lack real-time data, clearly label plausible examples as illustrative and still make them useful.`;
+
+      const grokRes = await fetch(GROK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1400,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are Signal's digest writer: sharp, non-generic, respects the user's time. Ground claims when possible; avoid hollow hype.",
+            },
+            { role: "user", content: prompt },
+          ],
+        }),
+      });
+
+      if (!grokRes.ok) {
+        const err = await grokRes.json().catch(() => ({}));
+        return json({ error: err.error?.message || "Grok API error" }, grokRes.status);
+      }
+
+      const data = await grokRes.json();
+      const content = data.choices?.[0]?.message?.content ?? "";
+      return json({ content });
     }
 
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "grok-3-latest",
-        max_tokens: 1000,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.json();
-      return res.status(response.status).json({ error: err.error?.message || "Grok error" });
-    }
-
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-
-    // Check if profile is ready
-    const profileMatch = content.match(/\[PROFILE_READY\]([\s\S]*?)\[\/PROFILE_READY\]/);
-    if (profileMatch) {
-      try {
-        const profile = JSON.parse(profileMatch[1].trim());
-        const cleanMessage = content.replace(/\[PROFILE_READY\][\s\S]*?\[\/PROFILE_READY\]/, "").trim();
-        return res.status(200).json({ content: cleanMessage, profile, profileReady: true });
-      } catch(e) {}
-    }
-
-    return res.status(200).json({ content, profileReady: false });
-
+    return json({ error: "Unknown action" }, 400);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return json({ error: err.message || "Server error" }, 500);
   }
 }
