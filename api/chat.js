@@ -1,11 +1,11 @@
 /**
  * Vercel Node.js Serverless — POST /api/chat
- * GET /api/chat — quick health JSON (no Grok call)
+ * GET /api/chat — quick health JSON (no Groq call)
  */
 
-//**
 const GROK_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.3-70b-versatile";
+const GROK_TIMEOUT_MS = 45000;
 
 const ONBOARDING_SYSTEM = `You are Signal — a concise, warm concierge for a paid daily email product called Signal (personalized AI industry news, YouTube picks, tools, and one actionable tip).
 
@@ -88,7 +88,7 @@ async function handler(req, res) {
     if (!apiKey) {
       return res.status(400).json({
         error:
-          "Missing Grok API key. Set GROK_API_KEY in Vercel project settings, or send apiKey in the JSON body (dev only).",
+          "Missing API key. Set GROK_API_KEY in Vercel project settings, or send apiKey in the JSON body (dev only).",
       });
     }
 
@@ -121,7 +121,7 @@ async function handler(req, res) {
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "API error" });
       }
 
       const data = await grokRes.json();
@@ -172,7 +172,7 @@ End with exactly this sentence on its own line:
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "API error" });
       }
 
       const data = await grokRes.json();
@@ -276,7 +276,7 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "API error" });
       }
 
       const data = await grokRes.json();
@@ -286,7 +286,7 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
 
     return res.status(400).json({ error: "Unknown action" });
   } catch (err) {
-    const msg = err?.name === "AbortError" ? "Grok request timed out — try again." : err.message || "Server error";
+    const msg = err?.name === "AbortError" ? "Request timed out — try again." : err.message || "Server error";
     return res.status(err?.name === "AbortError" ? 504 : 500).json({ error: msg });
   }
 }
