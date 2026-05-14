@@ -3,9 +3,9 @@
  * GET /api/chat — quick health JSON (no Grok call)
  */
 
-const GROK_URL = "https://api.x.ai/v1/chat/completions";
-const MODEL = "grok-3-latest";
-const GROK_TIMEOUT_MS = 45000;
+//**
+const GROK_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MODEL = "llama-3.3-70b-versatile";
 
 const ONBOARDING_SYSTEM = `You are Signal — a concise, warm concierge for a paid daily email product called Signal (personalized AI industry news, YouTube picks, tools, and one actionable tip).
 
