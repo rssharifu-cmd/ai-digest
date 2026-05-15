@@ -15,12 +15,14 @@ Goals through natural chat (aim for roughly 6–10 user messages before wrapping
 - What outcomes they want over the next few months.
 - What they consider noise vs signal (topics, depth, risk tolerance).
 - Preferred delivery style (tone, length, any hard exclusions).
+- Their email address — you MUST collect this before finishing onboarding. Ask for it naturally around message 5–7, e.g. "What email should I send your daily digest to?" or "Last thing — what's the best email to reach you at each morning?". Never skip this step.
 
 Rules:
 - Ask ONE focused follow-up at a time unless they dump a long message — then acknowledge and ask the single most important next question.
 - No bullet interrogation lists; feel like a smart colleague, not a form.
 - Do not invent private facts about them; infer only from what they said.
-- When you have enough to personalize a daily digest, say clearly that you're almost ready to draft their profile summary for them to approve — but do not output the full structured profile until the app asks for a summary in a separate step.
+- You MUST ask for their email address before you say you are ready to wrap up. If you have 5+ user messages and no email yet, ask for it now.
+- When you have their email and enough info to personalize a daily digest, say clearly that you're almost ready to draft their profile summary for them to approve — but do not output the full structured profile until the app asks for a summary in a separate step.
 - Never ask them to paste API keys or credentials.`;
 
 function cors(res) {
@@ -59,6 +61,18 @@ function parseBody(req) {
   }
 }
 
+// Extract email address from chat messages
+function extractEmail(messages) {
+  const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  // Search user messages in reverse (most recent first)
+  const userMessages = messages.filter((m) => m.role === "user").reverse();
+  for (const msg of userMessages) {
+    const match = msg.content.match(emailRegex);
+    if (match) return match[0];
+  }
+  return null;
+}
+
 async function handler(req, res) {
   cors(res);
 
@@ -94,6 +108,7 @@ async function handler(req, res) {
 
     const action = body.action || "chat";
 
+    // ── CHAT ──────────────────────────────────────────────────────────────────
     if (action === "chat") {
       const messages = body.messages;
       if (!Array.isArray(messages) || messages.length === 0) {
@@ -113,6 +128,15 @@ async function handler(req, res) {
         return res.status(400).json({ error: "No user messages yet" });
       }
 
+      const userTurns = messages.filter((m) => m.role === "user").length;
+      const emailFound = extractEmail(messages);
+
+      // After 8+ turns with email collected, hint to wrap up
+      if (userTurns >= 8 && emailFound) {
+        system +=
+          "\n\nYou have collected enough information including the user's email address. In your next reply, warmly tell them you have everything you need and that you're ready to generate their profile summary. Keep it to 2-3 sentences max.";
+      }
+
       const grokRes = await grokFetch(apiKey, {
         model: MODEL,
         max_tokens: 900,
@@ -121,20 +145,30 @@ async function handler(req, res) {
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
-      const userTurns = messages.filter((m) => m.role === "user").length;
-      return res.status(200).json({ content, userTurns });
+
+      // Tell frontend whether email has been collected and turn count
+      return res.status(200).json({
+        content,
+        userTurns,
+        emailCollected: !!emailFound,
+        readyForSummary: userTurns >= 6 && !!emailFound,
+      });
     }
 
+    // ── SUMMARY ───────────────────────────────────────────────────────────────
     if (action === "summary") {
       const messages = body.messages;
       if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: "messages required for summary" });
       }
+
+      // Extract email from conversation
+      const detectedEmail = extractEmail(messages);
 
       const transcript = messages
         .map((m) => `${m.role === "user" ? "User" : "Signal"}: ${m.content}`)
@@ -153,6 +187,7 @@ Write a profile summary the user will approve before their first digest. Use cle
 3) Topics & sources signal (what to emphasize / avoid)
 4) Tone & length (how the daily email should feel)
 5) What "today's digest" will typically include (5 short bullets, specific to them)
+6) Delivery email: ${detectedEmail || "[not provided — note this clearly]"}
 
 End with exactly this sentence on its own line:
 "Does this sound right? Share any adjustments in chat, or tap Accept to lock this profile for 7 days."`;
@@ -172,14 +207,19 @@ End with exactly this sentence on its own line:
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
-      return res.status(200).json({ content });
+
+      return res.status(200).json({
+        content,
+        email: detectedEmail || null,
+      });
     }
 
+    // ── DIGEST ────────────────────────────────────────────────────────────────
     if (action === "digest") {
       const profile = body.profile || {};
       const narrative =
@@ -276,7 +316,7 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
       }
 
       const data = await grokRes.json();
