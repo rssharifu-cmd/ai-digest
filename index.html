@@ -3,333 +3,459 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Signal — a personalized daily AI and industry digest, tuned to you through conversation." />
-  <title>Signal — Personalized intelligence, daily</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <meta name="description" content="Signal — personalized AI news digest delivered to your inbox daily." />
+  <title>Signal — Your AI reads the internet for you</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #070708;
-      --surface: #101014;
-      --elevated: #18181f;
-      --accent: #5eead4;
-      --accent-dim: rgba(94, 234, 212, 0.14);
-      --border: rgba(94, 234, 212, 0.18);
-      --text: #ececf1;
-      --muted: #8b8b9a;
-      --dim: #4b4b58;
-      --sans: "IBM Plex Sans", system-ui, sans-serif;
-      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --bg: #FAFAF8;
+      --white: #FFFFFF;
+      --surface: #F4F3EF;
+      --border: #E8E6E0;
+      --border-dark: #D0CEC6;
+      --text: #1A1A18;
+      --muted: #6B6B64;
+      --dim: #9E9E96;
+      --accent: #1B4FD8;
+      --accent-light: #EEF3FF;
+      --accent-hover: #1540B8;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --serif: "Instrument Serif", Georgia, serif;
+      --sans: "DM Sans", system-ui, sans-serif;
+      --radius: 12px;
+      --radius-sm: 8px;
     }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* —— Landing —— */
-    #landing-view {
-      min-height: 100vh; display: flex; flex-direction: column;
-      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(94, 234, 212, 0.12), transparent 55%), var(--bg);
-    }
-    .land-nav {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .land-logo { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.2em; color: var(--accent); }
-    .land-nav-note { font-size: 12px; color: var(--muted); }
-    .land-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 24px 64px; max-width: 720px; margin: 0 auto; width: 100%; }
-    .land-hero h1 {
-      font-size: clamp(2rem, 5vw, 2.85rem); font-weight: 600; line-height: 1.15; margin-bottom: 20px; letter-spacing: -0.02em;
-    }
-    .land-hero h1 span { color: var(--accent); }
-    .land-lead { font-size: 1.125rem; color: var(--muted); line-height: 1.65; margin-bottom: 32px; max-width: 540px; }
-    .land-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; }
-    .btn-primary {
-      font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
-      padding: 14px 28px; background: var(--accent); color: #042f2e; border: none; cursor: pointer; font-weight: 600;
-    }
-    .btn-primary:hover { filter: brightness(1.05); }
-    .btn-ghost {
-      font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em;
-      padding: 14px 22px; background: transparent; color: var(--text);
-      border: 1px solid rgba(255,255,255,0.12); cursor: pointer;
-    }
-    .btn-ghost:hover { border-color: var(--border); color: var(--accent); }
-    .land-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-    .land-card {
-      background: var(--surface); border: 1px solid rgba(255,255,255,0.06);
-      padding: 20px; animation: fadeUp 0.5s ease backwards;
-    }
-    .land-card:nth-child(1) { animation-delay: 0.05s; }
-    .land-card:nth-child(2) { animation-delay: 0.1s; }
-    .land-card:nth-child(3) { animation-delay: 0.15s; }
-    .land-card h3 { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 10px; }
-    .land-card p { font-size: 14px; color: var(--muted); line-height: 1.55; }
-    .land-foot { padding: 24px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center; font-size: 12px; color: var(--dim); }
+    /* NAV */
+    .nav { position: sticky; top: 0; z-index: 200; background: rgba(250,250,248,0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: var(--serif); font-size: 22px; color: var(--text); letter-spacing: -0.01em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-right { display: flex; gap: 12px; align-items: center; }
+    .btn-nav-ghost { padding: 8px 18px; border: 1px solid var(--border-dark); background: transparent; color: var(--text); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+    .btn-nav-ghost:hover { background: var(--surface); }
+    .btn-nav-primary { padding: 8px 20px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-nav-primary:hover { background: var(--accent-hover); }
 
-    /* —— App shell —— */
-    #main-shell { display: none; flex-direction: column; min-height: 100vh; }
-    .header {
-      padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
-      display: flex; justify-content: space-between; align-items: center;
-      position: sticky; top: 0; z-index: 100; background: rgba(7,7,8,0.92); backdrop-filter: blur(8px);
-    }
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-icon {
-      width: 30px; height: 30px; border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--mono); font-size: 11px; color: var(--accent);
-    }
-    .logo-text p:first-child { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; color: var(--accent); }
-    .logo-text p:last-child { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .header-btns { display: flex; gap: 8px; align-items: center; }
-    .hbtn {
-      padding: 6px 12px; background: transparent; font-family: var(--mono);
-      font-size: 10px; letter-spacing: 0.1em; cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.08); color: var(--dim);
-    }
-    .hbtn.active { border-color: var(--border); color: var(--accent); }
-    .hbtn:hover { border-color: var(--border); color: var(--accent); }
+    /* HERO */
+    #landing-view { display: flex; flex-direction: column; min-height: 100vh; }
+    .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 24px 60px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-light); color: var(--accent); border: 1px solid #C7D7FA; border-radius: 100px; padding: 6px 14px; font-size: 13px; font-weight: 500; margin-bottom: 28px; animation: fadeUp 0.4s ease; }
+    .hero h1 { font-family: var(--serif); font-size: clamp(2.4rem, 5.5vw, 3.8rem); font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; max-width: 700px; margin-bottom: 22px; animation: fadeUp 0.5s ease; }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero-sub { font-size: 1.1rem; color: var(--muted); line-height: 1.7; max-width: 480px; margin-bottom: 36px; animation: fadeUp 0.6s ease; }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px; animation: fadeUp 0.65s ease; }
+    .btn-primary-lg { padding: 14px 28px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+    .btn-primary-lg:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(27,79,216,0.25); }
+    .btn-secondary-lg { padding: 14px 24px; background: var(--white); border: 1px solid var(--border-dark); color: var(--text); font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+    .btn-secondary-lg:hover { background: var(--surface); }
 
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.88);
-      display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px;
-    }
+    /* EMAIL MOCKUP */
+    .email-preview { width: 100%; max-width: 580px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.08); text-align: left; animation: fadeUp 0.7s 0.1s ease backwards; }
+    .email-chrome { background: var(--surface); padding: 11px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .email-dots { display: flex; gap: 6px; }
+    .email-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .email-dot.r { background: #FF5F57; } .email-dot.y { background: #FEBC2E; } .email-dot.g { background: #28C840; }
+    .email-title-bar { font-size: 12px; color: var(--muted); flex: 1; text-align: center; }
+    .email-body { padding: 24px; }
+    .email-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .email-sender { font-size: 13px; color: var(--muted); } .email-sender strong { color: var(--text); font-weight: 600; }
+    .email-date { font-size: 12px; color: var(--dim); }
+    .email-headline { font-family: var(--serif); font-size: 20px; color: var(--text); margin-bottom: 16px; line-height: 1.3; }
+    .email-item { display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .email-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .email-item-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+    .email-item-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
+    .email-item-sub { font-size: 12px; color: var(--accent); font-weight: 500; }
+    .email-item-sub.dim { color: var(--muted); }
+
+    /* FEATURES */
+    .features { background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 24px; }
+    .features-inner { max-width: 1000px; margin: 0 auto; }
+    .section-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .section-title { text-align: center; font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.4rem); color: var(--text); font-weight: 400; margin-bottom: 44px; letter-spacing: -0.01em; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+    .feature-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 22px; transition: border-color 0.2s, transform 0.2s; }
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .feature-icon { width: 42px; height: 42px; background: var(--accent-light); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 7px; }
+    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* HOW */
+    .how { padding: 80px 24px; }
+    .how-inner { max-width: 760px; margin: 0 auto; }
+    .steps { display: flex; flex-direction: column; }
+    .step { display: grid; grid-template-columns: 52px 1fr; gap: 18px; padding: 26px 0; border-bottom: 1px solid var(--border); }
+    .step:last-child { border-bottom: none; }
+    .step-num { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+    .step-content h3 { font-size: 16px; font-weight: 600; margin-bottom: 5px; padding-top: 9px; }
+    .step-content p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* PRICING */
+    .pricing { background: var(--white); border-top: 1px solid var(--border); padding: 80px 24px; }
+    .pricing-inner { max-width: 860px; margin: 0 auto; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 44px; }
+    .pricing-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 30px 26px; background: var(--bg); position: relative; }
+    .pricing-card.popular { border: 2px solid var(--accent); background: var(--white); }
+    .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 14px; border-radius: 100px; }
+    .pricing-name { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+    .pricing-price { font-family: var(--serif); font-size: 2.6rem; color: var(--text); line-height: 1; margin-bottom: 4px; }
+    .pricing-price span { font-family: var(--sans); font-size: 15px; color: var(--muted); }
+    .pricing-desc { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+    .pricing-features li { display: flex; gap: 9px; font-size: 14px; align-items: flex-start; }
+    .check { color: var(--green); font-size: 16px; line-height: 1.4; flex-shrink: 0; }
+    .btn-pricing { width: 100%; padding: 12px; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+    .btn-pricing.outline { background: transparent; border: 1px solid var(--border-dark); color: var(--text); }
+    .btn-pricing.outline:hover { background: var(--surface); }
+    .btn-pricing.filled { background: var(--accent); border: none; color: #fff; }
+    .btn-pricing.filled:hover { background: var(--accent-hover); }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 28px 32px; text-align: center; font-size: 13px; color: var(--dim); }
+    footer a { color: var(--muted); text-decoration: none; } footer a:hover { color: var(--text); }
+
+    /* APP SHELL */
+    #main-shell { display: none; flex-direction: column; min-height: 100vh; background: var(--bg); }
+    .app-nav { position: sticky; top: 0; z-index: 200; background: rgba(250,250,248,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .app-logo { font-family: var(--serif); font-size: 20px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    .app-phase { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; background: var(--accent-light); color: var(--accent); padding: 3px 10px; border-radius: 100px; }
+    .app-nav-btns { display: flex; gap: 8px; }
+    .app-hbtn { padding: 6px 14px; font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; border: 1px solid var(--border); background: transparent; color: var(--muted); }
+    .app-hbtn:hover, .app-hbtn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+    /* MODALS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 400; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border); padding: 28px; max-width: 400px; width: 100%;
-    }
-    .modal label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--accent); display: block; margin-bottom: 12px; }
-    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.65; }
-    .modal input {
-      width: 100%; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); font-size: 13px; font-family: var(--mono); margin-bottom: 14px; outline: none;
-    }
+    .modal { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; max-width: 420px; width: 100%; animation: slideDown 0.2s ease; }
+    .modal-title { font-family: var(--serif); font-size: 20px; margin-bottom: 6px; }
+    .modal p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+    .modal label { font-size: 11px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .modal input { width: 100%; padding: 11px 14px; background: var(--bg); border: 1px solid var(--border-dark); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: var(--sans); margin-bottom: 14px; outline: none; transition: border-color 0.15s; }
+    .modal input:focus { border-color: var(--accent); }
     .modal-btns { display: flex; gap: 10px; }
-    .btn-cancel {
-      flex: 1; padding: 11px; background: transparent; border: 1px solid rgba(255,255,255,0.1);
-      color: var(--muted); cursor: pointer; font-family: var(--mono); font-size: 11px;
-    }
-    .btn-save {
-      flex: 1; padding: 11px; background: var(--accent); border: none; color: #042f2e;
-      cursor: pointer; font-family: var(--mono); font-size: 11px; font-weight: 600;
-    }
+    .btn-modal-cancel { flex: 1; padding: 11px; background: transparent; border: 1px solid var(--border-dark); color: var(--muted); cursor: pointer; font-family: var(--sans); font-size: 13px; border-radius: var(--radius-sm); }
+    .btn-modal-save { flex: 1; padding: 11px; background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); }
 
-    .profile-cta {
-      display: none; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 10px 20px; background: var(--elevated); border-bottom: 1px solid var(--border);
-      font-size: 13px; color: var(--muted);
-    }
+    /* AUTH MODAL */
+    .auth-modal { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; max-width: 420px; width: 100%; animation: slideDown 0.2s ease; }
+    .auth-tabs { display: flex; margin-bottom: 26px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; background: transparent; border: none; color: var(--muted); transition: all 0.15s; }
+    .auth-tab.active { background: var(--accent); color: #fff; }
+    .auth-modal h2 { font-family: var(--serif); font-size: 24px; margin-bottom: 5px; }
+    .auth-sub { font-size: 14px; color: var(--muted); margin-bottom: 22px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 11px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .form-group input { width: 100%; padding: 11px 14px; background: var(--bg); border: 1px solid var(--border-dark); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: var(--sans); outline: none; transition: border-color 0.15s; }
+    .form-group input:focus { border-color: var(--accent); }
+    .btn-auth { width: 100%; padding: 13px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); margin-top: 4px; transition: all 0.15s; }
+    .btn-auth:hover { background: var(--accent-hover); }
+    .auth-footer { text-align: center; font-size: 13px; color: var(--dim); margin-top: 14px; }
+    .auth-footer a { color: var(--accent); text-decoration: none; }
+
+    /* PROFILE CTA */
+    .profile-cta { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 24px; background: var(--accent-light); border-bottom: 1px solid #C7D7FA; font-size: 14px; color: var(--muted); }
     .profile-cta.visible { display: flex; flex-wrap: wrap; }
-    .profile-cta strong { color: var(--text); }
-    .profile-cta button {
-      font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
-      padding: 10px 18px; background: var(--accent); border: none; color: #042f2e; cursor: pointer; font-weight: 600;
-    }
+    .btn-cta-generate { font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 9px 18px; background: var(--accent); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); white-space: nowrap; }
 
-    .toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
-      background: #450a0a; border: 1px solid #7f1d1d; color: #fecaca; padding: 12px 20px; font-size: 13px; z-index: 400;
-      max-width: min(420px, 92vw); transition: transform 0.25s ease;
-    }
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: #1A1A18; color: #fff; padding: 12px 20px; font-size: 13px; z-index: 500; border-radius: var(--radius-sm); max-width: min(420px, 92vw); transition: transform 0.25s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
-    .chat-body { flex: 1; overflow-y: auto; padding: 28px 20px 100px; }
-    .chat-inner { max-width: 640px; margin: 0 auto; }
-    .msg { margin-bottom: 22px; display: flex; animation: fadeUp 0.28s ease; }
+    /* CHAT */
+    .chat-body { flex: 1; overflow-y: auto; padding: 32px 24px 120px; }
+    .chat-inner { max-width: 660px; margin: 0 auto; }
+    .msg { margin-bottom: 22px; display: flex; animation: fadeUp 0.25s ease; }
     .msg.user { justify-content: flex-end; }
-    .bot-icon {
-      width: 28px; height: 28px; border: 1px solid var(--border); color: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--mono); font-size: 9px; margin-right: 12px; flex-shrink: 0; margin-top: 2px;
-    }
-    .msg-bubble {
-      max-width: 82%; font-size: 14px; line-height: 1.75; color: #c5c5d0;
-      white-space: pre-wrap; word-break: break-word;
-    }
-    .msg.user .msg-bubble {
-      background: var(--surface); border: 1px solid rgba(255,255,255,0.08);
-      padding: 12px 16px; color: var(--text); max-width: 78%; border-radius: 2px;
-    }
+    .bot-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 15px; color: #fff; margin-right: 12px; flex-shrink: 0; margin-top: 2px; }
+    .msg-bubble { max-width: 82%; font-size: 15px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+    .msg.user .msg-bubble { background: var(--accent); color: #fff; padding: 12px 18px; border-radius: 18px 18px 4px 18px; max-width: 75%; }
     .typing { display: flex; align-items: center; margin-bottom: 22px; }
-    .dot {
-      width: 5px; height: 5px; background: var(--accent); border-radius: 50%; margin-right: 5px;
-      animation: blink 1.1s ease infinite;
-    }
-    .dot:nth-child(2) { animation-delay: 0.15s; }
-    .dot:nth-child(3) { animation-delay: 0.3s; }
+    .dot { width: 7px; height: 7px; background: var(--border-dark); border-radius: 50%; margin-right: 5px; animation: blink 1.1s ease infinite; }
+    .dot:nth-child(2) { animation-delay: 0.15s; } .dot:nth-child(3) { animation-delay: 0.3s; }
 
-    .summary-actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-accept {
-      font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
-      padding: 12px 22px; background: var(--accent); border: none; color: #042f2e; cursor: pointer; font-weight: 600;
-    }
-    .btn-adjust {
-      font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-      padding: 12px 18px; background: transparent; border: 1px solid var(--border); color: var(--accent); cursor: pointer;
-    }
+    /* SUMMARY */
+    .summary-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-accept { font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 11px 22px; background: var(--accent); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); }
+    .btn-adjust { font-family: var(--sans); font-size: 13px; padding: 11px 18px; background: transparent; border: 1px solid var(--border-dark); color: var(--muted); cursor: pointer; border-radius: var(--radius-sm); }
 
-    .input-area {
-      border-top: 1px solid rgba(255,255,255,0.06); padding: 16px 20px; background: var(--bg);
-      position: sticky; bottom: 0;
-    }
-    .input-inner { max-width: 640px; margin: 0 auto; }
+    /* INPUT */
+    .input-area { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--white); position: sticky; bottom: 0; }
+    .input-inner { max-width: 660px; margin: 0 auto; }
     .input-row { display: flex; gap: 10px; align-items: flex-end; }
-    textarea {
-      flex: 1; padding: 12px 14px; background: var(--surface); border: 1px solid rgba(255,255,255,0.1);
-      color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.55;
-      resize: none; outline: none; min-height: 52px; border-radius: 2px;
-    }
+    textarea { flex: 1; padding: 13px 16px; background: var(--bg); border: 1px solid var(--border-dark); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.5; resize: none; outline: none; min-height: 50px; border-radius: 25px; transition: border-color 0.15s; }
+    textarea:focus { border-color: var(--accent); }
     textarea::placeholder { color: var(--dim); }
-    .send-btn {
-      padding: 12px 18px; background: var(--accent); border: none; color: #042f2e;
-      cursor: pointer; font-family: var(--mono); font-size: 13px; flex-shrink: 0; height: 52px; font-weight: 600;
-    }
+    .send-btn { padding: 0 20px; background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: var(--sans); font-size: 14px; font-weight: 600; flex-shrink: 0; height: 50px; border-radius: 25px; transition: all 0.15s; }
+    .send-btn:hover { background: var(--accent-hover); }
     .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    .locked-view {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 40px 20px; text-align: center;
-    }
-    .lock-icon {
-      width: 56px; height: 56px; border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 20px;
-    }
-    .locked-card {
-      width: 100%; max-width: 520px; background: var(--surface); border: 1px solid rgba(255,255,255,0.08);
-      padding: 22px; margin: 20px 0; text-align: left; max-height: 220px; overflow-y: auto;
-    }
-    .locked-card pre { font-family: var(--sans); font-size: 13px; color: var(--muted); line-height: 1.6; white-space: pre-wrap; }
-    .btn-digest {
-      font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
-      padding: 14px 32px; background: var(--accent); border: none; color: #042f2e; cursor: pointer; font-weight: 600;
-    }
+    /* LOCKED */
+    .locked-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; }
+    .locked-icon { width: 60px; height: 60px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: 26px; }
+    .locked-card { width: 100%; max-width: 520px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin: 18px 0; text-align: left; max-height: 220px; overflow-y: auto; }
+    .locked-card pre { font-family: var(--sans); font-size: 13px; color: var(--muted); line-height: 1.65; white-space: pre-wrap; }
+    .btn-digest { font-family: var(--sans); font-size: 14px; font-weight: 600; padding: 13px 30px; background: var(--accent); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+    .btn-digest:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-    .digest-view { flex: 1; padding: 24px 20px; max-width: 680px; width: 100%; margin: 0 auto; }
-    .digest-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 12px; }
-    .digest-content {
-      background: var(--surface); border: 1px solid rgba(255,255,255,0.08);
-      padding: 26px; font-size: 14px; line-height: 1.85; color: #c5c5d0; white-space: pre-wrap;
-      word-break: break-word; margin-bottom: 14px;
-    }
-    .digest-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-refresh, .btn-back {
-      font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; padding: 11px 18px; cursor: pointer;
-    }
-    .btn-refresh { background: transparent; border: 1px solid var(--border); color: var(--accent); }
-    .btn-back { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--muted); }
-    .spinner {
-      width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.75s linear infinite; margin: 72px auto 14px;
-    }
-    .generating-text { text-align: center; font-size: 11px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.12em; animation: pulse 1.4s ease infinite; }
-    .api-notice {
-      margin-top: 14px; padding: 14px; background: rgba(251, 191, 36, 0.06); border: 1px solid rgba(251, 191, 36, 0.2);
-      font-size: 13px; color: #fcd34d; line-height: 1.55;
+    /* DIGEST */
+    .digest-view { flex: 1; padding: 28px 24px; max-width: 700px; width: 100%; margin: 0 auto; }
+    .digest-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+    .digest-content { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; font-size: 15px; line-height: 1.85; color: var(--text); white-space: pre-wrap; word-break: break-word; margin-bottom: 14px; }
+    .digest-btns { display: flex; gap: 10px; }
+    .btn-refresh, .btn-back { font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 10px 18px; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+    .btn-refresh { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+    .btn-back { background: transparent; border: 1px solid var(--border-dark); color: var(--muted); }
+    .spinner { width: 34px; height: 34px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 64px auto 12px; }
+    .generating-text { text-align: center; font-size: 13px; color: var(--muted); font-weight: 500; animation: pulse 1.4s ease infinite; }
+
+    @media (max-width: 640px) {
+      .nav { padding: 0 16px; }
+      .hero { padding: 56px 16px 36px; }
+      .pricing-grid, .features-grid { grid-template-columns: 1fr; }
+      .nav-right .btn-nav-ghost { display: none; }
     }
   </style>
 </head>
 <body>
 
-<!-- Landing -->
+<!-- LANDING -->
 <div id="landing-view">
-  <header class="land-nav">
-    <div class="land-logo">SIGNAL</div>
-    <p class="land-nav-note">Daily · Personal · No noise</p>
-  </header>
-  <section class="land-hero">
-    <h1>Your industry, <span>one signal</span> per day.</h1>
-    <p class="land-lead">
-      Signal learns what you care about through a real conversation — not a survey — then sends a focused morning brief:
-      what moved in AI and your field, one video worth your time, a tool to try, and one concrete next step.
-    </p>
-    <div class="land-actions">
-      <button type="button" class="btn-primary" onclick="startOnboarding()">Start your profile</button>
-      <button type="button" class="btn-ghost" onclick="startOnboarding(); openApiModal();">I have a Grok key (dev)</button>
+  <nav class="nav">
+    <div class="nav-logo">Signal<span>.</span></div>
+    <div class="nav-right">
+      <button class="btn-nav-ghost" onclick="openAuthModal('login')">Sign in</button>
+      <button class="btn-nav-primary" onclick="openAuthModal('signup')">Get Started →</button>
     </div>
-    <div class="land-grid">
-      <div class="land-card">
-        <h3>01 · CHAT</h3>
-        <p>Short natural back-and-forth so we understand your role, goals, and what you consider spam.</p>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">✦ AI-curated daily news digest</div>
+    <h1>Your AI reads the internet<br/><em>for you — every morning.</em></h1>
+    <p class="hero-sub">Tell us once who you are. Signal monitors the web daily and delivers only what matters to you.</p>
+    <div class="hero-cta">
+      <button class="btn-primary-lg" onclick="openAuthModal('signup')">Start 3-Day Free Trial →</button>
+      <button class="btn-secondary-lg" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Pricing</button>
+    </div>
+
+    <div class="email-preview">
+      <div class="email-chrome">
+        <div class="email-dots"><div class="email-dot r"></div><div class="email-dot y"></div><div class="email-dot g"></div></div>
+        <div class="email-title-bar">Your Daily Digest — Today, 8:00 AM</div>
       </div>
-      <div class="land-card">
-        <h3>02 · LOCK IN</h3>
-        <p>Review the written profile, accept once it feels right, then we freeze changes for seven days while the first digests ship.</p>
-      </div>
-      <div class="land-card">
-        <h3>03 · DAILY EMAIL</h3>
-        <p>Tailored stories, YouTube pick, tool, and signal — built from your profile, not a generic feed.</p>
+      <div class="email-body">
+        <div class="email-hdr">
+          <div class="email-sender"><strong>Signal</strong> &lt;digest@signal.app&gt;</div>
+          <div class="email-date">8:00 AM</div>
+        </div>
+        <div class="email-headline">Good morning. Here's what matters today.</div>
+        <div class="email-item">
+          <div class="email-item-icon">🤖</div>
+          <div>
+            <div class="email-item-title">OpenAI releases new reasoning model outperforming GPT-5</div>
+            <div class="email-item-sub">→ Directly relevant to your AI &amp; tech interests</div>
+          </div>
+        </div>
+        <div class="email-item">
+          <div class="email-item-icon">📺</div>
+          <div>
+            <div class="email-item-title">"How agents will replace SaaS" — Lenny's Podcast, 38 min</div>
+            <div class="email-item-sub dim">Skip to 12:30 for the key insight</div>
+          </div>
+        </div>
+        <div class="email-item">
+          <div class="email-item-icon">🛠</div>
+          <div>
+            <div class="email-item-title">Tool of the day: Perplexity Spaces — free tier available</div>
+            <div class="email-item-sub dim">Matched to your research workflow</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-  <footer class="land-foot">Paid product · Pricing at launch · Signal is not affiliated with xAI</footer>
-</div>
 
-<!-- App -->
-<div id="main-shell">
-  <div class="header">
-    <div class="logo">
-      <div class="logo-icon">~</div>
-      <div class="logo-text">
-        <p>SIGNAL</p>
-        <p id="phase-label">ONBOARDING</p>
+  <section class="features">
+    <div class="features-inner">
+      <p class="section-label">Why Signal</p>
+      <h2 class="section-title">Everything you need to stay ahead</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">💬</div>
+          <h3>Real AI conversation</h3>
+          <p>Not a survey. Signal learns who you are through natural chat — your role, goals, what you consider noise.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📧</div>
+          <h3>Daily email digest</h3>
+          <p>Every morning, a focused brief lands in your inbox — top stories, a video, a tool, and one action to take.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Zero noise, only signal</h3>
+          <p>Your profile filters out what doesn't matter. Every story and tool is matched to your specific context.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Profile locked for 7 days</h3>
+          <p>Once you accept your profile it locks for 7 days — giving the algorithm time to tune your first digests.</p>
+        </div>
       </div>
     </div>
-    <div class="header-btns">
-      <button type="button" class="hbtn" id="api-btn" onclick="openApiModal()">API</button>
-      <button type="button" class="hbtn" onclick="resetAll()">RESET</button>
+  </section>
+
+  <section class="how">
+    <div class="how-inner">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">Up and running in minutes</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Have a real conversation</h3>
+            <p>Signal asks you smart questions — what you do, what you're building, what you want to avoid. No forms, no dropdowns. Just chat.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Review and approve your profile</h3>
+            <p>Signal drafts a summary of everything it learned. You review it, tweak it, then lock it in. Your profile shapes every digest.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Receive your daily digest</h3>
+            <p>Every morning, a crisp email lands in your inbox — top stories for you, one video worth your time, a tool, and one action.</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="pricing-inner">
+      <p class="section-label">Pricing</p>
+      <h2 class="section-title">Simple, transparent pricing</h2>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-name">Starter</div>
+          <div class="pricing-price">$4.99<span>/mo</span></div>
+          <div class="pricing-desc">Everything you need to get started.</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Daily email digest</li>
+            <li><span class="check">✓</span> AI onboarding conversation</li>
+            <li><span class="check">✓</span> Profile refresh every 7 days</li>
+            <li><span class="check">✓</span> 3 digest sections</li>
+          </ul>
+          <button class="btn-pricing outline" onclick="openAuthModal('signup')">Get Started</button>
+        </div>
+        <div class="pricing-card popular">
+          <div class="popular-badge">MOST POPULAR</div>
+          <div class="pricing-name">Pro</div>
+          <div class="pricing-price">$9.99<span>/mo</span></div>
+          <div class="pricing-desc">For professionals who need the full picture.</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Everything in Starter</li>
+            <li><span class="check">✓</span> 5 digest sections</li>
+            <li><span class="check">✓</span> WhatsApp delivery (soon)</li>
+            <li><span class="check">✓</span> Priority support</li>
+            <li><span class="check">✓</span> Fine-tune profile anytime</li>
+          </ul>
+          <button class="btn-pricing filled" onclick="openAuthModal('signup')">Start Free Trial</button>
+        </div>
+      </div>
+      <p style="text-align:center; margin-top:20px; font-size:13px; color:var(--dim);">No credit card required · Cancel anytime</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Signal · <a href="#">Privacy</a> · <a href="#">Terms</a> · Not affiliated with xAI</p>
+  </footer>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="auth-modal">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
+      <button class="auth-tab" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
+    </div>
+    <div id="auth-signup-form">
+      <h2>Start your free trial</h2>
+      <p class="auth-sub">3 days free, then $4.99/mo. Cancel anytime.</p>
+      <div class="form-group"><label>Full name</label><input type="text" id="auth-name" placeholder="Your name" /></div>
+      <div class="form-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com" /></div>
+      <div class="form-group"><label>Password</label><input type="password" id="auth-pass" placeholder="Min 8 characters" /></div>
+      <button class="btn-auth" onclick="handleSignup()">Create Account &amp; Start →</button>
+      <p class="auth-footer">Already have an account? <a href="#" onclick="switchAuthTab('login'); return false;">Sign in</a></p>
+    </div>
+    <div id="auth-login-form" style="display:none;">
+      <h2>Welcome back</h2>
+      <p class="auth-sub">Sign in to your Signal account.</p>
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" /></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="Your password" /></div>
+      <button class="btn-auth" onclick="handleLogin()">Sign In →</button>
+      <p class="auth-footer">No account? <a href="#" onclick="switchAuthTab('signup'); return false;">Start free trial</a></p>
+    </div>
+    <p style="text-align:center; margin-top:12px;"><a href="#" onclick="closeAuthModal(); return false;" style="font-size:13px; color:var(--dim); text-decoration:none;">← Back</a></p>
   </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="main-shell">
+  <nav class="app-nav">
+    <div class="app-logo">Signal<span class="app-phase" id="phase-label">Onboarding</span></div>
+    <div class="app-nav-btns">
+      <button class="app-hbtn" id="api-btn" onclick="openApiModal()">API key</button>
+      <button class="app-hbtn" onclick="resetAll()">Reset</button>
+    </div>
+  </nav>
 
   <div class="modal-overlay" id="api-modal">
     <div class="modal">
-      <label>OPTIONAL · GROK API KEY</label>
-      <p>
-        On Vercel, set <strong style="color:var(--text)">GROK_API_KEY</strong> in project env — visitors do not need a key.
-        Paste a key here only for local testing or BYOK; it is stored in your browser as <code style="font-size:11px">signal_grok_key</code>.
-      </p>
+      <div class="modal-title">Grok API Key</div>
+      <p>Set <strong>GROK_API_KEY</strong> in Vercel env — visitors won't need a key. Paste here for local dev only.</p>
+      <label>API Key</label>
       <input type="password" id="api-input" placeholder="xai-…" autocomplete="off" />
       <div class="modal-btns">
-        <button type="button" class="btn-cancel" onclick="closeApiModal()">Cancel</button>
-        <button type="button" class="btn-save" onclick="saveApiKey()">Save</button>
+        <button class="btn-modal-cancel" onclick="closeApiModal()">Cancel</button>
+        <button class="btn-modal-save" onclick="saveApiKey()">Save</button>
       </div>
     </div>
   </div>
 
   <div id="profile-cta" class="profile-cta">
-    <span>You've shared <strong id="user-turns-display">6</strong> messages — ready to <strong>lock a profile summary</strong>?</span>
-    <button type="button" onclick="generateProfileSummary()">Generate summary</button>
+    <span id="profile-cta-text">You've shared <strong id="user-turns-display">6</strong> messages — ready to build your profile?</span>
+    <button class="btn-cta-generate" id="profile-cta-btn" onclick="generateProfileSummary()">Build my profile →</button>
   </div>
 
   <div id="chat-view" style="display:flex; flex-direction:column; flex:1;">
-    <div class="chat-body" id="chat-body">
-      <div class="chat-inner" id="chat-inner"></div>
-    </div>
-    <div class="input-area" id="input-area" style="display:none;">
-      <div class="input-inner" id="input-inner"></div>
-    </div>
+    <div class="chat-body" id="chat-body"><div class="chat-inner" id="chat-inner"></div></div>
+    <div class="input-area" id="input-area" style="display:none;"><div class="input-inner" id="input-inner"></div></div>
   </div>
 
   <div id="locked-view" class="locked-view" style="display:none;">
-    <div class="lock-icon">●</div>
-    <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--accent);margin-bottom:10px;">PROFILE LOCKED</p>
-    <p id="days-left" style="font-size:1.35rem;font-weight:500;margin-bottom:6px;"></p>
-    <p id="unlock-date" style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.55;max-width:420px;"></p>
+    <div class="locked-icon">✅</div>
+    <p style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--green); margin-bottom:10px;">Profile Locked</p>
+    <p id="days-left" style="font-size:1.5rem; font-weight:600; margin-bottom:6px;"></p>
+    <p id="unlock-date" style="font-size:14px; color:var(--muted); margin-bottom:22px; max-width:420px; line-height:1.6;"></p>
     <div class="locked-card"><pre id="profile-summary"></pre></div>
-    <button type="button" class="btn-digest" onclick="showDigest()">Preview today's digest</button>
+    <button class="btn-digest" onclick="showDigest()">Preview today's digest →</button>
   </div>
 
   <div id="digest-view" class="digest-view" style="display:none;">
     <div class="digest-header">
-      <div>
-        <p style="font-size:1.05rem;margin-bottom:4px;">Today's digest</p>
-        <p id="digest-date" style="font-size:12px;color:var(--muted);"></p>
-      </div>
-      <button type="button" class="hbtn active" onclick="openApiModal()">API</button>
+      <div><p style="font-size:1.1rem; font-weight:600; margin-bottom:3px;">Today's digest</p><p id="digest-date" style="font-size:13px; color:var(--muted);"></p></div>
+      <button class="app-hbtn" onclick="openApiModal()">API key</button>
     </div>
     <div id="digest-body"></div>
   </div>
@@ -338,70 +464,44 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-const STORAGE = { lock: "signal_lock_until", profile: "signal_profile", msgs: "signal_messages" };
+const STORAGE = { lock: "signal_lock_until", profile: "signal_profile", msgs: "signal_messages", email: "signal_email" };
 const LS_GROK = "signal_grok_key";
 const LEGACY_LOCK = "digest_locked";
 const LEGACY_ANSWERS = "digest_answers";
+const OPENING = `Hey — I'm Signal. I learn what actually matters to you so your daily update is not generic noise.\n\nIn your own words: what do you do, what world do you work in, and what's on your mind lately?`;
 
-const OPENING = `Hey — I'm Signal. I learn what actually matters to you so your daily update is not generic noise.
+let apiKey = localStorage.getItem(LS_GROK) || "";
+let chatMessages = [], summaryHtmlSnapshot = "", summaryPhase = false, sending = false;
 
-In your own words: what do you do, what world do you work in, and what's on your mind lately?`;
+function escapeHtml(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function formatBotHtml(t) { return escapeHtml(t).replace(/\n/g, "<br/>"); }
+function toast(msg) { const el = document.getElementById("toast"); el.textContent = msg; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 4200); }
+function userTurnCount() { return chatMessages.filter(m => m.role === "user").length; }
 
-let apiKey = localStorage.getItem(LS_GROK) || localStorage.getItem("grok_key") || "";
-if (apiKey && !localStorage.getItem(LS_GROK)) localStorage.setItem(LS_GROK, apiKey);
-let chatMessages = [];
-let summaryHtmlSnapshot = "";
-let summaryPhase = false;
-let sending = false;
-
-function escapeHtml(s) {
-  const d = document.createElement("div");
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-function formatBotHtml(text) {
-  return escapeHtml(text).replace(/\n/g, "<br/>");
-}
-
-function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 4200);
-}
-
-function userTurnCount() {
-  return chatMessages.filter((m) => m.role === "user").length;
-}
-
-function updateProfileCta() {
+function updateProfileCta(emailCollected = false, readyForSummary = false) {
   const bar = document.getElementById("profile-cta");
   const n = userTurnCount();
   document.getElementById("user-turns-display").textContent = String(n);
-  if (!summaryPhase && n >= 6 && document.getElementById("chat-view").style.display !== "none") {
+  if (summaryPhase || document.getElementById("chat-view").style.display === "none") { bar.classList.remove("visible"); return; }
+  if (n >= 6) {
     bar.classList.add("visible");
-  } else {
-    bar.classList.remove("visible");
-  }
+    const t = document.getElementById("profile-cta-text");
+    if (emailCollected || readyForSummary) {
+      t.innerHTML = `✅ Email collected · <strong>${n} messages</strong> — ready to build your profile!`;
+      if (readyForSummary && !summaryPhase) setTimeout(() => generateProfileSummary(), 1200);
+    } else {
+      t.innerHTML = `<strong>${n} messages</strong> — Signal still needs your <strong>email address</strong> to send your digest.`;
+    }
+  } else { bar.classList.remove("visible"); }
 }
 
 function tryMigrateLegacy() {
-  const locked = localStorage.getItem(LEGACY_LOCK);
-  const saved = localStorage.getItem(LEGACY_ANSWERS);
+  const locked = localStorage.getItem(LEGACY_LOCK), saved = localStorage.getItem(LEGACY_ANSWERS);
   if (!locked || !saved) return false;
   const until = new Date(locked);
   if (until <= new Date()) return false;
-  let answers;
-  try { answers = JSON.parse(saved); } catch { return false; }
-  const narrative = ["Profession", "Goal", "Challenge", "Sources", "YouTube", "Delivery", "Email"]
-    .map((k) => {
-      const id = k.toLowerCase();
-      const v = answers[id];
-      return v ? `${k}: ${v}` : null;
-    })
-    .filter(Boolean)
-    .join("\n");
+  let answers; try { answers = JSON.parse(saved); } catch { return false; }
+  const narrative = ["Profession","Goal","Challenge","Sources","YouTube","Delivery","Email"].map(k => { const v = answers[k.toLowerCase()]; return v ? `${k}: ${v}` : null; }).filter(Boolean).join("\n");
   localStorage.setItem(STORAGE.profile, narrative || "Legacy profile");
   localStorage.setItem(STORAGE.lock, locked);
   return true;
@@ -409,137 +509,104 @@ function tryMigrateLegacy() {
 
 window.onload = () => {
   updateApiBtn();
-  if (tryMigrateLegacy()) {
-    const until = new Date(localStorage.getItem(STORAGE.lock));
-    showLockedView(until, localStorage.getItem(STORAGE.profile));
-    return;
-  }
-  const lock = localStorage.getItem(STORAGE.lock);
-  const prof = localStorage.getItem(STORAGE.profile);
-  if (lock && prof && new Date(lock) > new Date()) {
-    showLockedView(new Date(lock), prof);
-    return;
-  }
+  if (tryMigrateLegacy()) { showLockedView(new Date(localStorage.getItem(STORAGE.lock)), localStorage.getItem(STORAGE.profile)); return; }
+  const lock = localStorage.getItem(STORAGE.lock), prof = localStorage.getItem(STORAGE.profile);
+  if (lock && prof && new Date(lock) > new Date()) { showLockedView(new Date(lock), prof); return; }
   document.getElementById("landing-view").style.display = "flex";
   document.getElementById("main-shell").style.display = "none";
 };
 
+function openAuthModal(tab = "signup") { switchAuthTab(tab); document.getElementById("auth-modal").classList.add("open"); }
+function closeAuthModal() { document.getElementById("auth-modal").classList.remove("open"); }
+function switchAuthTab(tab) {
+  document.getElementById("auth-signup-form").style.display = tab === "signup" ? "block" : "none";
+  document.getElementById("auth-login-form").style.display = tab === "login" ? "block" : "none";
+  document.getElementById("tab-signup").classList.toggle("active", tab === "signup");
+  document.getElementById("tab-login").classList.toggle("active", tab === "login");
+}
+function handleSignup() {
+  const name = document.getElementById("auth-name").value.trim();
+  const email = document.getElementById("auth-email").value.trim();
+  const pass = document.getElementById("auth-pass").value.trim();
+  if (!name || !email || !pass) { toast("Please fill in all fields."); return; }
+  if (pass.length < 8) { toast("Password must be at least 8 characters."); return; }
+  if (email) localStorage.setItem(STORAGE.email, email);
+  closeAuthModal(); startOnboarding();
+}
+function handleLogin() {
+  const email = document.getElementById("login-email").value.trim();
+  const pass = document.getElementById("login-pass").value.trim();
+  if (!email || !pass) { toast("Please enter your email and password."); return; }
+  const lock = localStorage.getItem(STORAGE.lock), prof = localStorage.getItem(STORAGE.profile);
+  if (lock && prof && new Date(lock) > new Date()) { closeAuthModal(); showLockedView(new Date(lock), prof); return; }
+  closeAuthModal(); startOnboarding();
+}
+
+function openApiModal() { document.getElementById("api-modal").classList.add("open"); document.getElementById("api-input").value = apiKey; }
+function closeApiModal() { document.getElementById("api-modal").classList.remove("open"); }
+function saveApiKey() {
+  const val = document.getElementById("api-input").value.trim();
+  apiKey = val;
+  if (val) localStorage.setItem(LS_GROK, val); else localStorage.removeItem(LS_GROK);
+  updateApiBtn(); closeApiModal();
+}
+function updateApiBtn() {
+  const btn = document.getElementById("api-btn");
+  if (apiKey) { btn.textContent = "API ✓"; btn.classList.add("active"); } else { btn.textContent = "API key"; btn.classList.remove("active"); }
+}
+
 function startOnboarding() {
   document.getElementById("landing-view").style.display = "none";
   document.getElementById("main-shell").style.display = "flex";
-  document.getElementById("phase-label").textContent = "ONBOARDING";
+  document.getElementById("phase-label").textContent = "Onboarding";
   document.getElementById("chat-view").style.display = "flex";
   document.getElementById("locked-view").style.display = "none";
   document.getElementById("digest-view").style.display = "none";
   document.getElementById("chat-inner").innerHTML = "";
   chatMessages = [{ role: "assistant", content: OPENING }];
-  summaryPhase = false;
-  summaryHtmlSnapshot = "";
+  summaryPhase = false; summaryHtmlSnapshot = "";
   renderHistory();
   document.getElementById("input-area").style.display = "block";
-  renderChatInput();
-  updateProfileCta();
+  renderChatInput(); updateProfileCta();
 }
 
 function renderHistory() {
-  const inner = document.getElementById("chat-inner");
-  inner.innerHTML = "";
-  for (const m of chatMessages) {
-    if (m.role === "user") appendUserBubble(m.content, false);
-    else appendAssistantBubble(m.content, false);
-  }
+  const inner = document.getElementById("chat-inner"); inner.innerHTML = "";
+  for (const m of chatMessages) { if (m.role === "user") appendUserBubble(m.content, false); else appendAssistantBubble(m.content, false); }
   scrollBottom();
 }
-
 function appendUserBubble(text, scroll = true) {
   const inner = document.getElementById("chat-inner");
-  const row = document.createElement("div");
-  row.className = "msg user";
+  const row = document.createElement("div"); row.className = "msg user";
   row.innerHTML = `<div class="msg-bubble">${formatBotHtml(text)}</div>`;
-  inner.appendChild(row);
-  if (scroll) scrollBottom();
+  inner.appendChild(row); if (scroll) scrollBottom();
 }
-
 function appendAssistantBubble(text, scroll = true) {
   const inner = document.getElementById("chat-inner");
-  const row = document.createElement("div");
-  row.className = "msg bot";
-  row.innerHTML = `<div class="bot-icon">~</div><div class="msg-bubble">${formatBotHtml(text)}</div>`;
-  inner.appendChild(row);
-  if (scroll) scrollBottom();
+  const row = document.createElement("div"); row.className = "msg bot";
+  row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(text)}</div>`;
+  inner.appendChild(row); if (scroll) scrollBottom();
 }
-
-function scrollBottom() {
-  requestAnimationFrame(() => {
-    const body = document.getElementById("chat-body");
-    body.scrollTop = body.scrollHeight;
-  });
-}
-
+function scrollBottom() { requestAnimationFrame(() => { const b = document.getElementById("chat-body"); b.scrollTop = b.scrollHeight; }); }
 function renderChatInput() {
-  const inner = document.getElementById("input-inner");
-  inner.innerHTML = `
-    <div class="input-row">
-      <textarea id="user-input" rows="2" placeholder="Message Signal…" onkeydown="handleKey(event)"></textarea>
-      <button type="button" class="send-btn" id="send-btn" onclick="submitChat()">Send</button>
-    </div>`;
+  document.getElementById("input-inner").innerHTML = `<div class="input-row"><textarea id="user-input" rows="1" placeholder="Message Signal…" onkeydown="handleKey(event)"></textarea><button type="button" class="send-btn" id="send-btn" onclick="submitChat()">Send</button></div>`;
   setTimeout(() => document.getElementById("user-input")?.focus(), 80);
 }
-
-function handleKey(e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    submitChat();
-  }
-}
+function handleKey(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitChat(); } }
 
 async function apiChat(body) {
   const payload = { ...body };
   if (apiKey) payload.apiKey = apiKey;
-
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 60000);
-
   let res;
-  try {
-    res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: ctrl.signal,
-    });
-  } catch (e) {
-    clearTimeout(to);
-    if (e.name === "AbortError") {
-      throw new Error("Request timed out. Check your connection, Vercel env GROK_API_KEY, and redeploy.");
-    }
-    throw e;
-  }
+  try { res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: ctrl.signal }); }
+  catch (e) { clearTimeout(to); if (e.name === "AbortError") throw new Error("Request timed out."); throw e; }
   clearTimeout(to);
-
-  const raw = await res.text();
-  const ct = (res.headers.get("content-type") || "").toLowerCase();
-  let data = {};
-  try {
-    data = raw ? JSON.parse(raw) : {};
-  } catch {
-    if (raw.trimStart().startsWith("<!") || raw.trimStart().startsWith("<html")) {
-      throw new Error(
-        "Got a web page instead of JSON — /api/chat is not hitting the Edge function. Push the latest repo (no Next.js) and redeploy on Vercel."
-      );
-    }
-    throw new Error(raw.slice(0, 180) || "Invalid JSON from server");
-  }
-
+  const raw = await res.text(); let data = {};
+  try { data = raw ? JSON.parse(raw) : {}; } catch { throw new Error(raw.slice(0, 180) || "Invalid JSON"); }
   if (!res.ok) throw new Error(data.error || res.statusText || "Request failed");
-
-  if (body.action === "chat" || body.action === "summary" || body.action === "digest") {
-    const c = data.content;
-    if (typeof c !== "string" || !c.trim()) {
-      throw new Error(data.error || "Empty reply from AI. Check GROK_API_KEY and model access.");
-    }
-  }
-
+  if (["chat","summary","digest"].includes(body.action) && (typeof data.content !== "string" || !data.content.trim())) throw new Error(data.error || "Empty reply from AI.");
   return data;
 }
 
@@ -548,40 +615,32 @@ async function submitChat() {
   const input = document.getElementById("user-input");
   const val = (input?.value || "").trim();
   if (!val) return;
-
   sending = true;
   const btn = document.getElementById("send-btn");
   if (btn) btn.disabled = true;
   input.value = "";
-
   chatMessages.push({ role: "user", content: val });
   appendUserBubble(val);
   localStorage.setItem(STORAGE.msgs, JSON.stringify(chatMessages));
-
   const inner = document.getElementById("chat-inner");
-  const typing = document.createElement("div");
-  typing.className = "typing";
-  typing.id = "chat-typing";
-  typing.innerHTML = `<div class="bot-icon">~</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
-  inner.appendChild(typing);
-  scrollBottom();
-
+  const typing = document.createElement("div"); typing.className = "typing"; typing.id = "chat-typing";
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  inner.appendChild(typing); scrollBottom();
+  let lastData = {};
   try {
     const data = await apiChat({ action: "chat", messages: chatMessages });
+    lastData = data;
     document.getElementById("chat-typing")?.remove();
     chatMessages.push({ role: "assistant", content: data.content });
     appendAssistantBubble(data.content);
     localStorage.setItem(STORAGE.msgs, JSON.stringify(chatMessages));
   } catch (e) {
     document.getElementById("chat-typing")?.remove();
-    chatMessages.pop();
-    toast(e.message || "Chat failed");
-    renderChatInput();
-    document.getElementById("user-input").value = val;
+    chatMessages.pop(); toast(e.message || "Chat failed");
+    renderChatInput(); document.getElementById("user-input").value = val;
   } finally {
-    sending = false;
-    if (btn) btn.disabled = false;
-    updateProfileCta();
+    sending = false; if (btn) btn.disabled = false;
+    updateProfileCta(!!lastData.emailCollected, !!lastData.readyForSummary);
   }
 }
 
@@ -590,52 +649,32 @@ async function generateProfileSummary() {
   document.getElementById("profile-cta").classList.remove("visible");
   summaryPhase = true;
   document.getElementById("input-area").style.display = "none";
-
   const inner = document.getElementById("chat-inner");
-  const typing = document.createElement("div");
-  typing.className = "typing";
-  typing.id = "summary-typing";
-  typing.innerHTML = `<div class="bot-icon">~</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
-  inner.appendChild(typing);
-  scrollBottom();
-
+  const typing = document.createElement("div"); typing.className = "typing"; typing.id = "sum-typing";
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  inner.appendChild(typing); scrollBottom();
   try {
     const data = await apiChat({ action: "summary", messages: chatMessages });
-    document.getElementById("summary-typing")?.remove();
+    document.getElementById("sum-typing")?.remove();
     summaryHtmlSnapshot = data.content;
-    const row = document.createElement("div");
-    row.className = "msg bot";
-    row.id = "summary-msg";
-    row.innerHTML = `
-      <div class="bot-icon">~</div>
-      <div class="msg-bubble">
-        ${formatBotHtml(data.content)}
-        <div class="summary-actions">
-          <button type="button" class="btn-accept" onclick="handleAccept()">Accept & lock 7 days</button>
-          <button type="button" class="btn-adjust" onclick="openAdjust()">I have adjustments</button>
-        </div>
-      </div>`;
-    inner.appendChild(row);
-    scrollBottom();
+    if (data.email) localStorage.setItem(STORAGE.email, data.email);
+    const emailLine = data.email
+      ? `<p style="margin-top:14px;font-size:13px;color:var(--muted);padding:10px 14px;background:var(--accent-light);border-radius:8px;">📧 Digest → <strong style="color:var(--accent)">${data.email}</strong></p>`
+      : `<p style="margin-top:14px;font-size:13px;color:#92400E;padding:10px 14px;background:#FFFBEB;border-radius:8px;">⚠️ No email found — mention your email in adjustments.</p>`;
+    const row = document.createElement("div"); row.className = "msg bot"; row.id = "sum-msg";
+    row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(data.content)}${emailLine}<div class="summary-actions"><button type="button" class="btn-accept" onclick="handleAccept()">Accept &amp; lock 7 days ✓</button><button type="button" class="btn-adjust" onclick="openAdjust()">Make adjustments</button></div></div>`;
+    inner.appendChild(row); scrollBottom();
   } catch (e) {
-    document.getElementById("summary-typing")?.remove();
+    document.getElementById("sum-typing")?.remove();
     summaryPhase = false;
     document.getElementById("input-area").style.display = "block";
-    renderChatInput();
-    toast(e.message || "Summary failed");
-    updateProfileCta();
+    renderChatInput(); toast(e.message || "Summary failed"); updateProfileCta();
   }
 }
 
 function openAdjust() {
   document.getElementById("input-area").style.display = "block";
-  document.getElementById("input-inner").innerHTML = `
-    <p style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:var(--mono);letter-spacing:0.08em;">ADJUSTMENTS</p>
-    <div class="input-row">
-      <textarea id="adj-input" rows="2" placeholder="e.g. Less crypto, more EU policy, shorter tone…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdjust();}"></textarea>
-      <button type="button" class="send-btn" onclick="sendAdjust()">Send</button>
-    </div>
-    <p style="margin-top:10px;font-size:12px;color:var(--dim);">Or <button type="button" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;text-decoration:underline;" onclick="handleAccept()">accept as written</button></p>`;
+  document.getElementById("input-inner").innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500;">Adjustments</p><div class="input-row"><textarea id="adj-input" rows="1" placeholder="e.g. Less crypto, more EU policy…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdjust();}"></textarea><button type="button" class="send-btn" onclick="sendAdjust()">Send</button></div><p style="margin-top:10px;font-size:13px;color:var(--dim);">Or <button type="button" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;text-decoration:underline;" onclick="handleAccept()">accept as written</button></p>`;
   document.getElementById("adj-input")?.focus();
 }
 
@@ -643,76 +682,47 @@ async function sendAdjust() {
   const val = document.getElementById("adj-input")?.value?.trim();
   if (!val) return;
   document.getElementById("input-area").style.display = "none";
-  appendUserMessageLine(val);
-
+  appendUserBubble(val);
   const inner = document.getElementById("chat-inner");
-  const typing = document.createElement("div");
-  typing.className = "typing";
-  typing.id = "adj-typing";
-  typing.innerHTML = `<div class="bot-icon">~</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
-  inner.appendChild(typing);
-  scrollBottom();
-
+  const typing = document.createElement("div"); typing.className = "typing"; typing.id = "adj-typing";
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  inner.appendChild(typing); scrollBottom();
   try {
     const data = await apiChat({ action: "summary", messages: chatMessages, adjustment: val });
     document.getElementById("adj-typing")?.remove();
-    document.getElementById("summary-msg")?.remove();
+    document.getElementById("sum-msg")?.remove();
+    if (data.email) localStorage.setItem(STORAGE.email, data.email);
     summaryHtmlSnapshot = data.content;
-    const row = document.createElement("div");
-    row.className = "msg bot";
-    row.id = "summary-msg";
-    row.innerHTML = `
-      <div class="bot-icon">~</div>
-      <div class="msg-bubble">
-        ${formatBotHtml(data.content)}
-        <div class="summary-actions">
-          <button type="button" class="btn-accept" onclick="handleAccept()">Accept & lock 7 days</button>
-          <button type="button" class="btn-adjust" onclick="openAdjust()">More adjustments</button>
-        </div>
-      </div>`;
-    inner.appendChild(row);
-    scrollBottom();
-  } catch (e) {
-    document.getElementById("adj-typing")?.remove();
-    toast(e.message || "Could not refresh summary");
-    openAdjust();
-  }
-}
-
-function appendUserMessageLine(text) {
-  appendUserBubble(text);
+    const emailLine = data.email ? `<p style="margin-top:14px;font-size:13px;padding:10px 14px;background:var(--accent-light);border-radius:8px;">📧 Digest → <strong style="color:var(--accent)">${data.email}</strong></p>` : "";
+    const row = document.createElement("div"); row.className = "msg bot"; row.id = "sum-msg";
+    row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(data.content)}${emailLine}<div class="summary-actions"><button type="button" class="btn-accept" onclick="handleAccept()">Accept &amp; lock 7 days ✓</button><button type="button" class="btn-adjust" onclick="openAdjust()">More adjustments</button></div></div>`;
+    inner.appendChild(row); scrollBottom();
+  } catch (e) { document.getElementById("adj-typing")?.remove(); toast(e.message || "Failed"); openAdjust(); }
 }
 
 function handleAccept() {
   document.getElementById("input-area").style.display = "none";
   appendUserBubble("Accepted ✓");
-
-  const lockUntil = new Date();
-  lockUntil.setDate(lockUntil.getDate() + 7);
-  const profileText = summaryHtmlSnapshot || chatMessages.map((m) => `${m.role}: ${m.content}`).join("\n\n");
-
+  const lockUntil = new Date(); lockUntil.setDate(lockUntil.getDate() + 7);
+  const profileText = summaryHtmlSnapshot || chatMessages.map(m => `${m.role}: ${m.content}`).join("\n\n");
+  const savedEmail = localStorage.getItem(STORAGE.email) || "";
   localStorage.setItem(STORAGE.lock, lockUntil.toISOString());
   localStorage.setItem(STORAGE.profile, profileText);
   localStorage.removeItem(STORAGE.msgs);
-
   const inner = document.getElementById("chat-inner");
-  const typing = document.createElement("div");
-  typing.className = "typing";
-  typing.innerHTML = `<div class="bot-icon">~</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
-  inner.appendChild(typing);
-  scrollBottom();
-
+  const typing = document.createElement("div"); typing.className = "typing";
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  inner.appendChild(typing); scrollBottom();
+  const msg = savedEmail
+    ? `You're all set! Profile locked for 7 days.\n\nYour daily digest will be sent to ${savedEmail} — first edition arriving tomorrow morning.\n\nPreview today's digest below.`
+    : `You're set. Profile locked for 7 days.\n\nEmail delivery coming soon — preview today's digest below.`;
   setTimeout(() => {
-    typing.remove();
-    appendAssistantBubble(
-      `You're set. This profile is locked for 7 days while we tune your first digests.\n\nEmail delivery is next on the roadmap — for now you can preview today's digest below.`,
-      true
-    );
-    setTimeout(() => showLockedView(lockUntil, profileText), 1400);
+    typing.remove(); appendAssistantBubble(msg, true);
+    setTimeout(() => showLockedView(lockUntil, profileText, savedEmail), 1400);
   }, 500);
 }
 
-function showLockedView(lockDate, profileText) {
+function showLockedView(lockDate, profileText, email) {
   document.getElementById("landing-view").style.display = "none";
   document.getElementById("main-shell").style.display = "flex";
   document.getElementById("chat-view").style.display = "none";
@@ -720,103 +730,46 @@ function showLockedView(lockDate, profileText) {
   document.getElementById("locked-view").style.display = "flex";
   document.getElementById("digest-view").style.display = "none";
   document.getElementById("profile-cta").classList.remove("visible");
-  document.getElementById("phase-label").textContent = "LOCKED";
-
+  document.getElementById("phase-label").textContent = "Locked";
   const daysLeft = Math.max(0, Math.ceil((lockDate - new Date()) / 86400000));
-  document.getElementById("days-left").textContent =
-    daysLeft === 0 ? "Unlocks today" : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left on this profile`;
-  document.getElementById("unlock-date").textContent =
-    `Profile edits unlock on ${lockDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}.`;
-
-  document.getElementById("profile-summary").textContent =
-    (profileText || "").slice(0, 2800) + ((profileText || "").length > 2800 ? "…" : "");
+  document.getElementById("days-left").textContent = daysLeft === 0 ? "Unlocks today" : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`;
+  const savedEmail = email || localStorage.getItem(STORAGE.email) || "";
+  const emailNote = savedEmail ? ` · Digest → <strong style="color:var(--accent)">${savedEmail}</strong>` : "";
+  document.getElementById("unlock-date").innerHTML = `Profile edits unlock on ${lockDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}${emailNote}.`;
+  document.getElementById("profile-summary").textContent = (profileText || "").slice(0, 2800) + ((profileText || "").length > 2800 ? "…" : "");
 }
 
 function showDigest() {
   document.getElementById("locked-view").style.display = "none";
   document.getElementById("digest-view").style.display = "block";
-  document.getElementById("phase-label").textContent = "DIGEST";
-  document.getElementById("digest-date").textContent = new Date().toLocaleDateString(undefined, {
-    weekday: "long", month: "long", day: "numeric",
-  });
+  document.getElementById("phase-label").textContent = "Digest";
+  document.getElementById("digest-date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
   runDigest();
 }
 
 async function runDigest() {
   const bodyEl = document.getElementById("digest-body");
   const profileText = localStorage.getItem(STORAGE.profile) || "";
-  bodyEl.innerHTML = `<div class="spinner"></div><p class="generating-text">GENERATING DIGEST</p>`;
-
+  bodyEl.innerHTML = `<div class="spinner"></div><p class="generating-text">Generating your digest…</p>`;
   try {
-    const data = await apiChat({
-      action: "digest",
-      profile: { narrative: profileText },
-    });
-    bodyEl.innerHTML = `
-      <div class="digest-content">${formatBotHtml(data.content)}</div>
-      <div class="digest-btns">
-        <button type="button" class="btn-refresh" onclick="runDigest()">Refresh</button>
-        <button type="button" class="btn-back" onclick="backToLocked()">Back</button>
-      </div>`;
+    const data = await apiChat({ action: "digest", profile: { narrative: profileText } });
+    bodyEl.innerHTML = `<div class="digest-content">${formatBotHtml(data.content)}</div><div class="digest-btns"><button type="button" class="btn-refresh" onclick="runDigest()">↻ Refresh</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button></div>`;
   } catch (e) {
-    bodyEl.innerHTML = `
-      <div class="digest-content">${escapeHtml(e.message || "Could not generate digest.")}</div>
-      <div class="api-notice">Add <strong>GROK_API_KEY</strong> on Vercel or your dev key via <button type="button" onclick="openApiModal()" style="background:none;border:none;color:#fcd34d;cursor:pointer;font:inherit;text-decoration:underline;">API</button>.</div>
-      <div class="digest-btns" style="margin-top:12px;">
-        <button type="button" class="btn-refresh" onclick="runDigest()">Retry</button>
-        <button type="button" class="btn-back" onclick="backToLocked()">Back</button>
-      </div>`;
+    bodyEl.innerHTML = `<div class="digest-content">${escapeHtml(e.message || "Could not generate digest.")}</div><div class="digest-btns" style="margin-top:12px;"><button type="button" class="btn-refresh" onclick="runDigest()">Retry</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button></div>`;
   }
 }
 
 function backToLocked() {
   document.getElementById("digest-view").style.display = "none";
   document.getElementById("locked-view").style.display = "flex";
-  document.getElementById("phase-label").textContent = "LOCKED";
-}
-
-function openApiModal() {
-  document.getElementById("api-modal").classList.add("open");
-  document.getElementById("api-input").value = apiKey;
-}
-function closeApiModal() {
-  document.getElementById("api-modal").classList.remove("open");
-}
-function saveApiKey() {
-  const val = document.getElementById("api-input").value.trim();
-  apiKey = val;
-  if (val) localStorage.setItem(LS_GROK, val);
-  else localStorage.removeItem(LS_GROK);
-  updateApiBtn();
-  closeApiModal();
-}
-function updateApiBtn() {
-  const btn = document.getElementById("api-btn");
-  if (apiKey) {
-    btn.textContent = "API ✓";
-    btn.classList.add("active");
-  } else {
-    btn.textContent = "API";
-    btn.classList.remove("active");
-  }
+  document.getElementById("phase-label").textContent = "Locked";
 }
 
 function resetAll() {
-  localStorage.removeItem(STORAGE.lock);
-  localStorage.removeItem(STORAGE.profile);
-  localStorage.removeItem(STORAGE.msgs);
-  localStorage.removeItem(LEGACY_LOCK);
-  localStorage.removeItem(LEGACY_ANSWERS);
-  chatMessages = [];
-  summaryPhase = false;
-  summaryHtmlSnapshot = "";
-  document.getElementById("chat-inner").innerHTML = "";
-  document.getElementById("digest-body").innerHTML = "";
-  document.getElementById("input-area").style.display = "none";
-  document.getElementById("chat-view").style.display = "none";
-  document.getElementById("locked-view").style.display = "none";
-  document.getElementById("digest-view").style.display = "none";
-  document.getElementById("main-shell").style.display = "none";
+  [STORAGE.lock, STORAGE.profile, STORAGE.msgs, STORAGE.email, LEGACY_LOCK, LEGACY_ANSWERS].forEach(k => localStorage.removeItem(k));
+  chatMessages = []; summaryPhase = false; summaryHtmlSnapshot = "";
+  ["chat-inner","digest-body"].forEach(id => document.getElementById(id).innerHTML = "");
+  ["input-area","chat-view","locked-view","digest-view","main-shell"].forEach(id => document.getElementById(id).style.display = "none");
   document.getElementById("landing-view").style.display = "flex";
   document.getElementById("profile-cta").classList.remove("visible");
 }
