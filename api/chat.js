@@ -1,28 +1,30 @@
 /**
  * Vercel Node.js Serverless — POST /api/chat
- * GET /api/chat — quick health JSON (no Groq call)
+ * GET /api/chat — quick health JSON
  */
 
 const GROK_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.3-70b-versatile";
 const GROK_TIMEOUT_MS = 45000;
 
-const ONBOARDING_SYSTEM = `You are Signal — a concise, warm concierge for a paid daily email product called Signal (personalized AI industry news, YouTube picks, tools, and one actionable tip).
+// Pricing plan features reference (used for context)
+// Starter $4.99/mo: daily digest, AI onboarding, profile refresh 7 days, 3 digest sections
+// Pro $9.99/mo: everything + 5 sections, WhatsApp (soon), priority support, fine-tune anytime
 
-Goals through natural chat (aim for roughly 6–10 user messages before wrapping):
-- Learn their name or how they like to be addressed (optional but nice).
-- What they do, seniority, industry, and time zone or region.
-- What outcomes they want over the next few months.
-- What they consider noise vs signal (topics, depth, risk tolerance).
-- Preferred delivery style (tone, length, any hard exclusions).
-- Their email address — you MUST collect this before finishing onboarding. Ask for it naturally around message 5–7, e.g. "What email should I send your daily digest to?" or "Last thing — what's the best email to reach you at each morning?". Never skip this step.
+const ONBOARDING_SYSTEM = `You are Signal — a warm, concise assistant helping a user set up their personalized daily news digest.
+
+The user has already filled in a quick profile form (name, profession, topics, sources). You will receive that as context.
+
+Your job: have a short, natural follow-up conversation (3–5 messages max) to clarify or enrich the profile. Then confirm and wrap up.
 
 Rules:
-- Ask ONE focused follow-up at a time unless they dump a long message — then acknowledge and ask the single most important next question.
-- No bullet interrogation lists; feel like a smart colleague, not a form.
-- Do not invent private facts about them; infer only from what they said.
-- You MUST ask for their email address before you say you are ready to wrap up. If you have 5+ user messages and no email yet, ask for it now.
-- When you have their email and enough info to personalize a daily digest, say clearly that you're almost ready to draft their profile summary for them to approve — but do not output the full structured profile until the app asks for a summary in a separate step.
+- Ask ONE question at a time, maximum.
+- Never ask for their email — they already gave it when signing up.
+- Never give instructions, tasks, or advice like a mentor ("you should try X", "consider doing Y"). You are a listener, not a coach.
+- Do not repeat questions about things already covered in the profile form.
+- Be curious about their *specific* context — depth, nuance, what they find noisy, what excites them.
+- Keep replies SHORT (2–4 sentences max). No bullet lists unless wrapping up.
+- When you feel you have enough to build a good digest profile (after 3–5 user messages), say warmly that you have everything and you're ready to draft their profile summary. Do not output the summary yet — the app will trigger that separately.
 - Never ask them to paste API keys or credentials.`;
 
 function cors(res) {
@@ -61,114 +63,108 @@ function parseBody(req) {
   }
 }
 
-// Extract email address from chat messages
-function extractEmail(messages) {
-  const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
-  // Search user messages in reverse (most recent first)
-  const userMessages = messages.filter((m) => m.role === "user").reverse();
-  for (const msg of userMessages) {
-    const match = msg.content.match(emailRegex);
-    if (match) return match[0];
-  }
-  return null;
-}
-
 async function handler(req, res) {
   cors(res);
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
+  if (req.method === "OPTIONS") return res.status(204).end();
 
   if (req.method === "GET") {
     return res.status(200).json({
       ok: true,
       route: "/api/chat",
       runtime: "nodejs",
-      hint: "POST JSON with { action, messages?, profile?, adjustment?, apiKey? }",
     });
   }
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
     const body = parseBody(req);
-    const serverKey = (process.env.GROK_API_KEY || "").trim();
-    const clientKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
-    const apiKey = serverKey || clientKey;
+    const apiKey = (process.env.GROK_API_KEY || "").trim();
 
     if (!apiKey) {
       return res.status(400).json({
-        error:
-          "Missing API key. Set GROK_API_KEY in Vercel project settings, or send apiKey in the JSON body (dev only).",
+        error: "Missing API key. Set GROK_API_KEY in Vercel project settings.",
       });
     }
 
     const action = body.action || "chat";
 
-    // ── CHAT ──────────────────────────────────────────────────────────────────
+    // ── CHAT ─────────────────────────────────────────────────────────────────
     if (action === "chat") {
       const messages = body.messages;
       if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: "messages array required" });
       }
 
-      let system = ONBOARDING_SYSTEM;
+      // Profile form data passed from frontend
+      const profileForm = body.profileForm || {};
+      const profileContext = Object.keys(profileForm).length
+        ? `\n\nPROFILE FORM ALREADY SUBMITTED:\n${Object.entries(profileForm)
+            .map(([k, v]) => `- ${k}: ${v}`)
+            .filter(([, v]) => v)
+            .join("\n")}`
+        : "";
+
+      let system = ONBOARDING_SYSTEM + profileContext;
       let conv = messages;
+
       if (messages[0]?.role === "assistant") {
         system +=
-          "\n\nYou already opened the chat with this message (stay consistent; do not repeat it verbatim unless the user asks):\n---\n" +
+          "\n\nYou already opened the chat with this message (stay consistent):\n---\n" +
           messages[0].content +
           "\n---";
         conv = messages.slice(1);
       }
-      if (conv.length === 0) {
-        return res.status(400).json({ error: "No user messages yet" });
-      }
+      if (conv.length === 0) return res.status(400).json({ error: "No user messages yet" });
 
       const userTurns = messages.filter((m) => m.role === "user").length;
-      const emailFound = extractEmail(messages);
 
-      // After 8+ turns with email collected, hint to wrap up
-      if (userTurns >= 8 && emailFound) {
+      // After 4+ turns, hint AI to wrap up if it hasn't
+      if (userTurns >= 4) {
         system +=
-          "\n\nYou have collected enough information including the user's email address. In your next reply, warmly tell them you have everything you need and that you're ready to generate their profile summary. Keep it to 2-3 sentences max.";
+          "\n\nYou have collected enough information. In your next reply (if not already done), warmly tell the user you have everything needed and are ready to generate their profile summary. Keep it to 1–2 sentences.";
       }
 
       const grokRes = await grokFetch(apiKey, {
         model: MODEL,
-        max_tokens: 900,
+        max_tokens: 600,
         messages: [{ role: "system", content: system }, ...conv],
       });
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "Groq API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
 
-      // Tell frontend whether email has been collected and turn count
+      // Detect if AI is signalling wrap-up
+      const wrapKeywords = ["ready to draft", "ready to generate", "have everything", "build your profile", "draft your profile"];
+      const readyForSummary = userTurns >= 3 && wrapKeywords.some(k => content.toLowerCase().includes(k));
+
       return res.status(200).json({
         content,
         userTurns,
-        emailCollected: !!emailFound,
-        readyForSummary: userTurns >= 6 && !!emailFound,
+        readyForSummary,
       });
     }
 
-    // ── SUMMARY ───────────────────────────────────────────────────────────────
+    // ── SUMMARY ──────────────────────────────────────────────────────────────
     if (action === "summary") {
       const messages = body.messages;
       if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: "messages required for summary" });
       }
 
-      // Extract email from conversation
-      const detectedEmail = extractEmail(messages);
+      const profileForm = body.profileForm || {};
+      const profileFormText = Object.keys(profileForm).length
+        ? `PROFILE FORM:\n${Object.entries(profileForm)
+            .map(([k, v]) => `- ${k}: ${v}`)
+            .filter(([, v]) => v)
+            .join("\n")}\n\n`
+        : "";
 
       const transcript = messages
         .map((m) => `${m.role === "user" ? "User" : "Signal"}: ${m.content}`)
@@ -176,30 +172,30 @@ async function handler(req, res) {
 
       const adj =
         typeof body.adjustment === "string" && body.adjustment.trim()
-          ? `\n\nThe user requests this revision before approving: ${body.adjustment.trim()}`
+          ? `\n\nThe user requests this revision: ${body.adjustment.trim()}`
           : "";
 
-      const userPrompt = `Here is the full onboarding chat:\n\n${transcript}${adj}\n\n---
-Write a profile summary the user will approve before their first digest. Use clear sections:
+      const userPrompt = `${profileFormText}FOLLOW-UP CHAT:\n${transcript}${adj}\n\n---
+Write a concise profile summary the user will approve before their first digest. Use clear sections:
 
-1) Who they are (role, context)
-2) Goals & horizon
-3) Topics & sources signal (what to emphasize / avoid)
-4) Tone & length (how the daily email should feel)
-5) What "today's digest" will typically include (5 short bullets, specific to them)
-6) Delivery email: ${detectedEmail || "[not provided — note this clearly]"}
+1) Who they are (name if given, role, context)
+2) Topics & sources to emphasize
+3) What to avoid / filter out
+4) Custom sources (websites, YouTube channels, X accounts) if mentioned
+5) Tone & format preference for daily email
+6) What their digest will typically include (4–5 short bullets)
 
-End with exactly this sentence on its own line:
-"Does this sound right? Share any adjustments in chat, or tap Accept to lock this profile for 7 days."`;
+End with exactly this line on its own:
+"Does this look right? Adjust in chat, or tap Confirm to lock your profile."`;
 
       const grokRes = await grokFetch(apiKey, {
         model: MODEL,
-        max_tokens: 1200,
+        max_tokens: 1000,
         messages: [
           {
             role: "system",
             content:
-              "You write tight, accurate user profiles for a digest product. Only use facts from the chat; mark uncertainties briefly if needed.",
+              "You write tight, accurate user profiles for a personalized digest product. Use only facts from the form and chat. Be specific, not generic.",
           },
           { role: "user", content: userPrompt },
         ],
@@ -207,19 +203,15 @@ End with exactly this sentence on its own line:
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "Groq API error" });
       }
 
       const data = await grokRes.json();
       const content = data.choices?.[0]?.message?.content ?? "";
-
-      return res.status(200).json({
-        content,
-        email: detectedEmail || null,
-      });
+      return res.status(200).json({ content });
     }
 
-    // ── DIGEST ────────────────────────────────────────────────────────────────
+    // ── DIGEST ───────────────────────────────────────────────────────────────
     if (action === "digest") {
       const profile = body.profile || {};
       const narrative =
@@ -228,70 +220,69 @@ End with exactly this sentence on its own line:
         [
           profile.profession && `Profession: ${profile.profession}`,
           profile.goal && `Goal: ${profile.goal}`,
-          profile.challenge && `Challenge: ${profile.challenge}`,
         ]
           .filter(Boolean)
           .join("\n");
 
-      if (!narrative) {
-        return res.status(400).json({ error: "profile narrative required" });
-      }
+      if (!narrative) return res.status(400).json({ error: "profile narrative required" });
 
       const today = new Date().toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
+        weekday: "long", month: "long", day: "numeric", year: "numeric",
       });
+
+      const isPro = body.plan === "pro";
 
       const prompt = `Generate a personalized daily AI digest for this user. Today is ${today}.
 
-APPROVED PROFILE (from onboarding):
+PROFILE:
 ${narrative}
+
+Plan: ${isPro ? "Pro (5 sections)" : "Starter (3 sections)"}
 
 Generate their digest in this EXACT format:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-YOUR DAILY DIGEST · ${today}
+YOUR SIGNAL · ${today}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔥 TOP STORIES FOR YOU
+🔥 TOP STORIES
 
-① [Specific recent AI / industry story title]
-[2-3 sentences: what happened + why it matters for this person]
-→ [credible source URL or primary link]
+① [Specific relevant story title]
+[2–3 sentences: what happened + why it matters for this person]
+→ [source]
 
-② [Specific recent story title]
-[2-3 sentences]
-→ [credible source URL]
+② [Story title]
+[2–3 sentences]
+→ [source]
 
-③ [Specific recent story title]
-[2-3 sentences]
-→ [credible source URL]
-
+③ [Story title]
+[2–3 sentences]
+→ [source]
+${
+  isPro
+    ? `
 
 📺 VIDEO WORTH YOUR TIME
 
-"[Specific relevant video title]"
+"[Relevant video title]"
 Channel: [YouTube channel] · [duration]
-Why watch: [1-2 sentences tied to their goals]
-Skip to: [timestamp] for the key insight
-
-
-💡 ONE THING TO DO TODAY
-
-[One concrete action for today]
-
+Why: [1–2 sentences tied to their goals]
+Skip to: [timestamp]
 
 🛠️ TOOL OF THE DAY
 
 [Tool name] ([URL])
 What: [One line]
 Why today: [Fit to their situation]
-Free tier: [Yes/No + details]
+Free tier: [Yes/No]`
+    : ""
+}
 
+💡 ONE THING TO DO TODAY
 
-📊 SIGNAL THIS WEEK
+[One concrete action relevant to their context]
+
+📊 THIS WEEK
 
 • [Insight 1]
 • [Insight 2]
@@ -299,16 +290,15 @@ Free tier: [Yes/No + details]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Be specific to their profile. If you lack real-time data, clearly label plausible examples as illustrative and still make them useful.`;
+Be specific to their profile. Label illustrative examples clearly if real-time data is unavailable.`;
 
       const grokRes = await grokFetch(apiKey, {
         model: MODEL,
-        max_tokens: 1400,
+        max_tokens: isPro ? 1600 : 1100,
         messages: [
           {
             role: "system",
-            content:
-              "You are Signal's digest writer: sharp, non-generic, respects the user's time. Ground claims when possible; avoid hollow hype.",
+            content: "You are Signal's digest writer: sharp, non-generic, respects the user's time.",
           },
           { role: "user", content: prompt },
         ],
@@ -316,7 +306,7 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
 
       if (!grokRes.ok) {
         const err = await grokRes.json().catch(() => ({}));
-        return res.status(grokRes.status).json({ error: err.error?.message || "Grok API error" });
+        return res.status(grokRes.status).json({ error: err.error?.message || "Groq API error" });
       }
 
       const data = await grokRes.json();
@@ -326,7 +316,8 @@ Be specific to their profile. If you lack real-time data, clearly label plausibl
 
     return res.status(400).json({ error: "Unknown action" });
   } catch (err) {
-    const msg = err?.name === "AbortError" ? "Request timed out — try again." : err.message || "Server error";
+    const msg =
+      err?.name === "AbortError" ? "Request timed out — try again." : err.message || "Server error";
     return res.status(err?.name === "AbortError" ? 504 : 500).json({ error: msg });
   }
 }
