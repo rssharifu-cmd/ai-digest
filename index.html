@@ -211,12 +211,61 @@
     .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     /* LOCKED / DASHBOARD */
-    .locked-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; }
-    .locked-icon { width: 60px; height: 60px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: 26px; }
-    .locked-card { width: 100%; max-width: 520px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin: 18px 0; text-align: left; max-height: 220px; overflow-y: auto; }
-    .locked-card pre { font-family: var(--sans); font-size: 13px; color: var(--muted); line-height: 1.65; white-space: pre-wrap; }
+    .locked-view { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow-y: auto; }
+    .dash-topbar { background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; }
+    .dash-trial-banner { display: flex; align-items: center; gap: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-sm); padding: 9px 16px; font-size: 13px; color: #92400E; max-width: 600px; }
+    .dash-trial-banner strong { font-weight: 600; }
+    .dash-plan-btns { display: flex; gap: 8px; }
+    .btn-plan { padding: 7px 16px; font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+    .btn-plan.starter { background: transparent; border: 1px solid var(--border-dark); color: var(--text); }
+    .btn-plan.starter:hover { background: var(--surface); }
+    .btn-plan.pro { background: var(--accent); border: none; color: #fff; }
+    .btn-plan.pro:hover { background: var(--accent-hover); }
+    .dash-greeting { padding: 28px 28px 8px; }
+    .dash-greeting-name { font-family: var(--serif); font-size: 1.7rem; color: var(--text); letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .dash-free-badge { font-family: var(--sans); font-size: 12px; font-weight: 600; background: var(--green-light); color: var(--green); padding: 4px 12px; border-radius: 100px; letter-spacing: 0.04em; }
+    .dash-greeting-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .dash-timer-note { font-size: 13px; color: var(--dim); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px; }
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 28px 28px; }
+    .dash-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+    .dash-card-full { grid-column: 1 / -1; }
+    .dash-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+    .dash-card-label svg { color: var(--green); }
+    .profile-entry { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .profile-entry:last-child { margin-bottom: 0; }
+    .profile-entry-icon { font-size: 15px; line-height: 1.6; flex-shrink: 0; color: var(--dim); }
+    .profile-entry-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); margin-bottom: 2px; }
+    .profile-entry-val { font-size: 13px; color: var(--text); line-height: 1.4; }
+    .profile-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
+    .profile-tag { font-size: 11px; padding: 3px 9px; border-radius: 100px; background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    .digest-typing-area { min-height: 200px; }
+    .digest-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin: 16px 0 8px; display: flex; align-items: center; gap: 6px; }
+    .digest-section-title:first-child { margin-top: 0; }
+    .digest-story { padding: 10px 13px; border-left: 2px solid var(--border-dark); margin-bottom: 8px; background: var(--bg); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .digest-story-num { font-size: 10px; font-weight: 700; color: var(--green); letter-spacing: 0.05em; margin-bottom: 2px; }
+    .digest-story-headline { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 4px; }
+    .digest-story-body { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .digest-story-src { font-size: 11px; color: var(--accent); margin-top: 4px; opacity: 0; transition: opacity 0.3s; }
+    .digest-story-src.show { opacity: 1; }
+    .digest-action-box { padding: 12px 15px; border: 1px solid #BBF7D0; border-radius: var(--radius-sm); background: #F0FDF4; font-size: 13px; color: #14532D; line-height: 1.6; }
+    .digest-insight { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 8px; font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .digest-insight-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
+    .digest-cursor { display: inline-block; width: 2px; height: 13px; background: var(--green); border-radius: 1px; vertical-align: middle; margin-left: 1px; animation: blink 1s step-end infinite; }
+    .dash-custom-locked { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; gap: 10px; }
+    .dash-lock-icon { font-size: 26px; opacity: 0.4; }
+    .dash-lock-text { font-size: 13px; color: var(--muted); }
+    .dash-lock-sub { font-size: 12px; color: var(--dim); }
+    .dash-email-row { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+    .dash-email-label { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .dash-toggle { width: 38px; height: 22px; background: var(--green); border-radius: 100px; position: relative; cursor: pointer; flex-shrink: 0; }
+    .dash-toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; top: 3px; right: 3px; transition: right 0.2s; }
     .btn-digest { font-family: var(--sans); font-size: 14px; font-weight: 600; padding: 13px 30px; background: var(--accent); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
     .btn-digest:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    @media (max-width: 640px) {
+      .dash-grid { grid-template-columns: 1fr; padding: 12px 16px 24px; }
+      .dash-topbar { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 16px; }
+      .dash-greeting { padding: 20px 16px 8px; }
+    }
 
     /* DIGEST */
     .digest-view { flex: 1; padding: 28px 24px; max-width: 700px; width: 100%; margin: 0 auto; }
@@ -504,12 +553,112 @@
 
   <!-- LOCKED / DASHBOARD VIEW -->
   <div id="locked-view" class="locked-view" style="display:none;">
-    <div class="locked-icon">✅</div>
-    <p style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--green); margin-bottom:10px;">Profile Locked</p>
-    <p id="days-left" style="font-size:1.5rem; font-weight:600; margin-bottom:6px;"></p>
-    <p id="unlock-date" style="font-size:14px; color:var(--muted); margin-bottom:22px; max-width:420px; line-height:1.6;"></p>
-    <div class="locked-card"><pre id="profile-summary"></pre></div>
-    <button class="btn-digest" onclick="showDigest()">Preview today's digest →</button>
+
+    <!-- Top bar -->
+    <div class="dash-topbar">
+      <div class="dash-trial-banner">
+        ⏳ <span><strong>Trial ends today</strong> · Full access to all features. Upgrade before your trial ends.</span>
+      </div>
+      <div class="dash-plan-btns">
+        <button class="btn-plan starter">Starter $7</button>
+        <button class="btn-plan pro">⚡ Pro $19</button>
+      </div>
+    </div>
+
+    <!-- Greeting -->
+    <div class="dash-greeting">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div class="dash-greeting-name">
+            <span id="dash-hello">Good afternoon</span>
+            <span class="dash-free-badge">⭐ Free Trial</span>
+          </div>
+          <div class="dash-greeting-sub">Your personalized digest is ready to deliver</div>
+        </div>
+        <div class="dash-timer-note">🕐 You can update your preferences in <strong id="days-left">3d 17h 58m</strong></div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="dash-grid">
+
+      <!-- Profile card -->
+      <div class="dash-card" id="dash-profile-card">
+        <div class="dash-card-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Your Digest Profile
+        </div>
+        <div id="dash-profile-body">
+          <div class="profile-entry">
+            <div class="profile-entry-icon">💼</div>
+            <div>
+              <div class="profile-entry-key">Profession</div>
+              <div class="profile-entry-val" id="dp-profession">—</div>
+            </div>
+          </div>
+          <div class="profile-entry">
+            <div class="profile-entry-icon">🏷</div>
+            <div>
+              <div class="profile-entry-key">Interests</div>
+              <div class="profile-tags" id="dp-tags"></div>
+            </div>
+          </div>
+          <div class="profile-entry">
+            <div class="profile-entry-icon">📰</div>
+            <div>
+              <div class="profile-entry-key">Content types</div>
+              <div class="profile-entry-val">News Articles</div>
+            </div>
+          </div>
+          <div class="profile-entry">
+            <div class="profile-entry-icon">🕐</div>
+            <div>
+              <div class="profile-entry-key">Daily digest time</div>
+              <div class="profile-entry-val" id="dp-time">13:00</div>
+            </div>
+          </div>
+          <div class="profile-entry">
+            <div class="profile-entry-icon">📝</div>
+            <div>
+              <div class="profile-entry-key">Notes</div>
+              <div class="profile-entry-val" id="dp-notes">—</div>
+            </div>
+          </div>
+          <div class="dash-email-row">
+            <div class="dash-email-label">✉️ <span>Daily Email Digest<br/><span style="font-size:11px;color:var(--dim);">You'll receive your digest daily</span></span></div>
+            <div class="dash-toggle"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live digest preview card -->
+      <div class="dash-card" id="dash-digest-card">
+        <div class="dash-card-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Digest Preview
+        </div>
+        <div class="digest-typing-area" id="dash-digest-output"></div>
+      </div>
+
+      <!-- Custom Sources (locked for free) -->
+      <div class="dash-card dash-card-full">
+        <div class="dash-card-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Custom Sources
+          <span style="font-size:11px; padding:2px 8px; border-radius:100px; background:var(--accent-light); color:var(--accent); margin-left:auto;">Pro Plan</span>
+        </div>
+        <div class="dash-custom-locked">
+          <div class="dash-lock-icon">🔒</div>
+          <div class="dash-lock-text">Upgrade to Pro to add custom sources</div>
+          <div class="dash-lock-sub">Monitor specific YouTube channels, Twitter accounts, and websites</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Hidden elements kept for JS compat -->
+    <p id="unlock-date" style="display:none;"></p>
+    <pre id="profile-summary" style="display:none;"></pre>
   </div>
 
   <!-- DIGEST VIEW -->
@@ -847,12 +996,174 @@ function showLockedView(lockDate, profileText, email) {
   document.getElementById("digest-view").style.display = "none";
   document.getElementById("phase-label").textContent = "Dashboard";
 
-  const daysLeft = Math.max(0, Math.ceil((lockDate - new Date()) / 86400000));
-  document.getElementById("days-left").textContent = daysLeft === 0 ? "Unlocks today" : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`;
+  // Greeting time of day
+  const hr = new Date().getHours();
+  const greet = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
   const savedEmail = email || localStorage.getItem(STORAGE.email) || "";
-  const emailNote = savedEmail ? ` · Digest → <strong style="color:var(--accent)">${savedEmail}</strong>` : "";
-  document.getElementById("unlock-date").innerHTML = `Profile edits unlock on ${lockDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}${emailNote}.`;
-  document.getElementById("profile-summary").textContent = (profileText || "").slice(0, 2800) + ((profileText || "").length > 2800 ? "…" : "");
+  const savedForm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
+  const name = savedForm.name ? `, ${savedForm.name}` : "";
+  document.getElementById("dash-hello").textContent = greet + name;
+
+  // Days remaining
+  const daysLeft = Math.max(0, Math.ceil((lockDate - new Date()) / 86400000));
+  document.getElementById("days-left").textContent = daysLeft === 0 ? "Unlocks today" : `${daysLeft}d left`;
+
+  // Store for compat
+  document.getElementById("unlock-date").textContent = lockDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+  document.getElementById("profile-summary").textContent = (profileText || "").slice(0, 2800);
+
+  // Populate profile card from saved form data
+  const prof = savedForm.profession || extractFromProfile(profileText, "Profession");
+  document.getElementById("dp-profession").textContent = prof || "—";
+
+  const topicsRaw = savedForm.topics || extractFromProfile(profileText, "Topics") || "";
+  const tagsEl = document.getElementById("dp-tags");
+  tagsEl.innerHTML = "";
+  if (topicsRaw) {
+    topicsRaw.split(",").slice(0, 4).forEach(t => {
+      const tag = document.createElement("span");
+      tag.className = "profile-tag";
+      tag.textContent = t.trim();
+      tagsEl.appendChild(tag);
+    });
+  }
+
+  const avoidRaw = savedForm.avoid || extractFromProfile(profileText, "Avoid") || "Global";
+  document.getElementById("dp-notes").textContent = avoidRaw ? `Avoid: ${avoidRaw}` : "Regions: Global";
+
+  // Run typewriter digest preview
+  runDashboardTypewriter(profileText, savedForm);
+}
+
+function extractFromProfile(text, key) {
+  if (!text) return "";
+  const lines = text.split("\n");
+  const match = lines.find(l => l.toLowerCase().includes(key.toLowerCase() + ":"));
+  return match ? match.split(":").slice(1).join(":").trim() : "";
+}
+
+// ── TYPEWRITER DIGEST ────────────────────────────────────────────────────────
+function runDashboardTypewriter(profileText, formData) {
+  const out = document.getElementById("dash-digest-output");
+  out.innerHTML = "";
+
+  const profession = formData.profession || extractFromProfile(profileText, "Profession") || "professional";
+  const topics = (formData.topics || extractFromProfile(profileText, "Topics") || "technology, business").split(",")[0].trim();
+
+  const digestBlocks = [
+    { type: "section", label: "🔥 Top Stories" },
+    { type: "story", num: "①", headline: `Major AI model release reshapes ${topics} landscape`, body: "A new frontier model outperforms predecessors by 40% on reasoning tasks. Direct implications for automation and productivity in your field.", src: "→ The Verge" },
+    { type: "story", num: "②", headline: "Global markets respond to latest central bank signals", body: "Equities rallied 1.8% after rate cut signals. Favorable conditions for financing through Q3 — worth watching for your planning.", src: "→ Bloomberg" },
+    { type: "story", num: "③", headline: `New funding wave targets ${topics}-adjacent startups`, body: "Three notable Series B rounds closed this week. The pattern suggests early-stage capital is concentrating around your area of interest.", src: "→ TechCrunch" },
+    { type: "section", label: "💡 One Thing to Do Today" },
+    { type: "action", text: `Review how the latest AI tooling could reduce manual work in your ${profession} workflow. A 30-minute audit now often unlocks hours per week.` },
+    { type: "section", label: "📊 This Week" },
+    { type: "insights", items: [
+      `${topics} adoption accelerating — early movers seeing measurable productivity gains`,
+      "Newsletter & niche media monetization hitting record RPMs for B2B audiences",
+      "AI agent tooling maturing — delegation of repeatable tasks now viable at low cost"
+    ]}
+  ];
+
+  let queue = [];
+  let storyEls = {}, actionEl = null, insightEls = {};
+  let storyIdx = 0, insightIdx = 0;
+  const SPEED = 17;
+
+  digestBlocks.forEach(block => {
+    if (block.type === "section") {
+      queue.push({ do: "section", label: block.label });
+    } else if (block.type === "story") {
+      const sid = storyIdx++;
+      queue.push({ do: "createStory", sid, num: block.num });
+      queue.push({ do: "typeEl", sid, field: "headline", text: block.headline, speed: SPEED });
+      queue.push({ do: "typeEl", sid, field: "body", text: block.body, speed: SPEED - 4 });
+      queue.push({ do: "showSrc", sid, text: block.src });
+    } else if (block.type === "action") {
+      queue.push({ do: "createAction" });
+      queue.push({ do: "typeAction", text: block.text, speed: SPEED });
+    } else if (block.type === "insights") {
+      block.items.forEach(item => {
+        const iid = insightIdx++;
+        queue.push({ do: "createInsight", iid });
+        queue.push({ do: "typeInsight", iid, text: item, speed: SPEED - 5 });
+      });
+    }
+  });
+
+  const cursor = document.createElement("span");
+  cursor.className = "digest-cursor";
+
+  function typeInto(el, text, speed, done) {
+    let i = 0;
+    function tick() {
+      if (i <= text.length) { el.textContent = text.slice(0, i++); setTimeout(tick, speed); }
+      else { done && done(); }
+    }
+    tick();
+  }
+
+  function run(qi) {
+    if (qi >= queue.length) { cursor.remove(); return; }
+    const step = queue[qi];
+    const next = () => run(qi + 1);
+
+    if (step.do === "section") {
+      const el = document.createElement("div");
+      el.className = "digest-section-title";
+      el.textContent = step.label;
+      out.appendChild(el);
+      out.appendChild(cursor);
+      setTimeout(next, 250);
+
+    } else if (step.do === "createStory") {
+      const el = document.createElement("div");
+      el.className = "digest-story";
+      el.innerHTML = `<div class="digest-story-num"></div><div class="digest-story-headline"></div><div class="digest-story-body"></div><div class="digest-story-src"></div>`;
+      el.querySelector(".digest-story-num").textContent = step.num;
+      out.appendChild(el);
+      storyEls[step.sid] = el;
+      setTimeout(next, 60);
+
+    } else if (step.do === "typeEl") {
+      const el = storyEls[step.sid].querySelector(`.digest-story-${step.field}`);
+      el.appendChild(cursor);
+      typeInto(el, step.text, step.speed, () => setTimeout(next, 80));
+
+    } else if (step.do === "showSrc") {
+      const src = storyEls[step.sid].querySelector(".digest-story-src");
+      src.textContent = step.text;
+      src.classList.add("show");
+      setTimeout(next, 180);
+
+    } else if (step.do === "createAction") {
+      actionEl = document.createElement("div");
+      actionEl.className = "digest-action-box";
+      out.appendChild(actionEl);
+      actionEl.appendChild(cursor);
+      setTimeout(next, 60);
+
+    } else if (step.do === "typeAction") {
+      actionEl.appendChild(cursor);
+      typeInto(actionEl, step.text, step.speed, () => setTimeout(next, 200));
+
+    } else if (step.do === "createInsight") {
+      const el = document.createElement("div");
+      el.className = "digest-insight";
+      el.innerHTML = `<div class="digest-insight-dot"></div><div></div>`;
+      out.appendChild(el);
+      insightEls[step.iid] = el.querySelector("div:last-child");
+      insightEls[step.iid].appendChild(cursor);
+      setTimeout(next, 40);
+
+    } else if (step.do === "typeInsight") {
+      const el = insightEls[step.iid];
+      el.appendChild(cursor);
+      typeInto(el, step.text, step.speed, () => setTimeout(next, 120));
+    }
+  }
+
+  setTimeout(() => run(0), 600);
 }
 
 function showDigest() {
