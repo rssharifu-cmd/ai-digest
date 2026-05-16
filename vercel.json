@@ -6,6 +6,10 @@
       "destination": "/api/chat.js"
     },
     {
+      "source": "/api/send",
+      "destination": "/api/send.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
