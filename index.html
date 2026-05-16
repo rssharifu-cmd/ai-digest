@@ -30,7 +30,7 @@
     html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
@@ -42,7 +42,7 @@
     .nav-right { display: flex; gap: 12px; align-items: center; }
     .btn-nav-ghost { padding: 8px 18px; border: 1px solid var(--border-dark); background: transparent; color: var(--text); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
     .btn-nav-ghost:hover { background: var(--surface); }
-    .btn-nav-primary { padding: 8px 20px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-nav-primary { padding: 8px 20px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
     .btn-nav-primary:hover { background: var(--accent-hover); }
 
     /* HERO */
@@ -53,7 +53,7 @@
     .hero h1 em { font-style: italic; color: var(--accent); }
     .hero-sub { font-size: 1.1rem; color: var(--muted); line-height: 1.7; max-width: 480px; margin-bottom: 36px; animation: fadeUp 0.6s ease; }
     .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px; animation: fadeUp 0.65s ease; }
-    .btn-primary-lg { padding: 14px 28px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+    .btn-primary-lg { padding: 14px 28px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
     .btn-primary-lg:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(27,79,216,0.25); }
     .btn-secondary-lg { padding: 14px 24px; background: var(--white); border: 1px solid var(--border-dark); color: var(--text); font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
     .btn-secondary-lg:hover { background: var(--surface); }
@@ -130,7 +130,7 @@
     .app-phase { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; background: var(--accent-light); color: var(--accent); padding: 3px 10px; border-radius: 100px; }
     .app-nav-btns { display: flex; gap: 8px; }
     .app-hbtn { padding: 6px 14px; font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; border: 1px solid var(--border); background: transparent; color: var(--muted); }
-    .app-hbtn:hover, .app-hbtn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .app-hbtn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
 
     /* MODALS */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 400; padding: 20px; }
@@ -138,12 +138,6 @@
     .modal { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; max-width: 420px; width: 100%; animation: slideDown 0.2s ease; }
     .modal-title { font-family: var(--serif); font-size: 20px; margin-bottom: 6px; }
     .modal p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
-    .modal label { font-size: 11px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
-    .modal input { width: 100%; padding: 11px 14px; background: var(--bg); border: 1px solid var(--border-dark); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: var(--sans); margin-bottom: 14px; outline: none; transition: border-color 0.15s; }
-    .modal input:focus { border-color: var(--accent); }
-    .modal-btns { display: flex; gap: 10px; }
-    .btn-modal-cancel { flex: 1; padding: 11px; background: transparent; border: 1px solid var(--border-dark); color: var(--muted); cursor: pointer; font-family: var(--sans); font-size: 13px; border-radius: var(--radius-sm); }
-    .btn-modal-save { flex: 1; padding: 11px; background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); }
 
     /* AUTH MODAL */
     .auth-modal { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; max-width: 420px; width: 100%; animation: slideDown 0.2s ease; }
@@ -154,41 +148,59 @@
     .auth-sub { font-size: 14px; color: var(--muted); margin-bottom: 22px; }
     .form-group { margin-bottom: 14px; }
     .form-group label { font-size: 11px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.08em; }
-    .form-group input { width: 100%; padding: 11px 14px; background: var(--bg); border: 1px solid var(--border-dark); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: var(--sans); outline: none; transition: border-color 0.15s; }
-    .form-group input:focus { border-color: var(--accent); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px 14px; background: var(--bg); border: 1px solid var(--border-dark); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: var(--sans); outline: none; transition: border-color 0.15s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
     .btn-auth { width: 100%; padding: 13px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); margin-top: 4px; transition: all 0.15s; }
     .btn-auth:hover { background: var(--accent-hover); }
     .auth-footer { text-align: center; font-size: 13px; color: var(--dim); margin-top: 14px; }
     .auth-footer a { color: var(--accent); text-decoration: none; }
 
-    /* PROFILE CTA */
-    .profile-cta { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 24px; background: var(--accent-light); border-bottom: 1px solid #C7D7FA; font-size: 14px; color: var(--muted); }
-    .profile-cta.visible { display: flex; flex-wrap: wrap; }
-    .btn-cta-generate { font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 9px 18px; background: var(--accent); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); white-space: nowrap; }
+    /* ONBOARDING FORM */
+    .onboarding-shell { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 36px 24px 60px; }
+    .onboarding-card { width: 100%; max-width: 600px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; animation: fadeUp 0.35s ease; }
+    .onboarding-card h2 { font-family: var(--serif); font-size: 1.6rem; margin-bottom: 6px; }
+    .onboarding-card > p { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.65; }
+    .profile-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .profile-table tr { border-bottom: 1px solid var(--border); }
+    .profile-table tr:last-child { border-bottom: none; }
+    .profile-table td { padding: 13px 0; vertical-align: top; }
+    .profile-table td:first-child { width: 36%; padding-right: 18px; font-size: 13px; font-weight: 600; color: var(--muted); padding-top: 15px; }
+    .profile-table input, .profile-table select, .profile-table textarea { width: 100%; padding: 10px 13px; background: var(--bg); border: 1px solid var(--border-dark); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: var(--sans); outline: none; transition: border-color 0.15s; resize: none; }
+    .profile-table input:focus, .profile-table select:focus, .profile-table textarea:focus { border-color: var(--accent); }
+    .profile-table textarea { min-height: 70px; }
+    .topic-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .topic-chip { padding: 5px 12px; border: 1px solid var(--border-dark); border-radius: 100px; font-size: 13px; color: var(--muted); cursor: pointer; background: var(--bg); transition: all 0.15s; user-select: none; }
+    .topic-chip.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-start-chat { width: 100%; padding: 14px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; margin-top: 4px; }
+    .btn-start-chat:hover { background: var(--accent-hover); }
+    .field-hint { font-size: 12px; color: var(--dim); margin-top: 5px; }
 
     /* TOAST */
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: #1A1A18; color: #fff; padding: 12px 20px; font-size: 13px; z-index: 500; border-radius: var(--radius-sm); max-width: min(420px, 92vw); transition: transform 0.25s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* CHAT */
-    .chat-body { flex: 1; overflow-y: auto; padding: 32px 24px 120px; }
+    .chat-body { flex: 1; overflow-y: auto; padding: 28px 24px 20px; scroll-behavior: smooth; }
     .chat-inner { max-width: 660px; margin: 0 auto; }
     .msg { margin-bottom: 22px; display: flex; animation: fadeUp 0.25s ease; }
     .msg.user { justify-content: flex-end; }
     .bot-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 15px; color: #fff; margin-right: 12px; flex-shrink: 0; margin-top: 2px; }
     .msg-bubble { max-width: 82%; font-size: 15px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; }
     .msg.user .msg-bubble { background: var(--accent); color: #fff; padding: 12px 18px; border-radius: 18px 18px 4px 18px; max-width: 75%; }
-    .typing { display: flex; align-items: center; margin-bottom: 22px; }
-    .dot { width: 7px; height: 7px; background: var(--border-dark); border-radius: 50%; margin-right: 5px; animation: blink 1.1s ease infinite; }
-    .dot:nth-child(2) { animation-delay: 0.15s; } .dot:nth-child(3) { animation-delay: 0.3s; }
+    /* TYPING INDICATOR */
+    .typing { display: flex; align-items: center; margin-bottom: 22px; gap: 0; }
+    .typing-dots { display: flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 18px 18px 18px 4px; }
+    .dot { width: 7px; height: 7px; background: var(--border-dark); border-radius: 50%; animation: blink 1.3s ease infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
 
     /* SUMMARY */
     .summary-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-accept { font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 11px 22px; background: var(--accent); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); }
+    .btn-accept { font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 11px 22px; background: var(--green); border: none; color: #fff; cursor: pointer; border-radius: var(--radius-sm); }
     .btn-adjust { font-family: var(--sans); font-size: 13px; padding: 11px 18px; background: transparent; border: 1px solid var(--border-dark); color: var(--muted); cursor: pointer; border-radius: var(--radius-sm); }
 
     /* INPUT */
-    .input-area { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--white); position: sticky; bottom: 0; }
+    .input-area { border-top: 1px solid var(--border); padding: 14px 24px 18px; background: var(--white); }
     .input-inner { max-width: 660px; margin: 0 auto; }
     .input-row { display: flex; gap: 10px; align-items: flex-end; }
     textarea { flex: 1; padding: 13px 16px; background: var(--bg); border: 1px solid var(--border-dark); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.5; resize: none; outline: none; min-height: 50px; border-radius: 25px; transition: border-color 0.15s; }
@@ -198,7 +210,7 @@
     .send-btn:hover { background: var(--accent-hover); }
     .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    /* LOCKED */
+    /* LOCKED / DASHBOARD */
     .locked-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; }
     .locked-icon { width: 60px; height: 60px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: 26px; }
     .locked-card { width: 100%; max-width: 520px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin: 18px 0; text-align: left; max-height: 220px; overflow-y: auto; }
@@ -222,6 +234,9 @@
       .hero { padding: 56px 16px 36px; }
       .pricing-grid, .features-grid { grid-template-columns: 1fr; }
       .nav-right .btn-nav-ghost { display: none; }
+      .onboarding-card { padding: 24px 20px; }
+      .profile-table td:first-child { width: 100%; display: block; padding-bottom: 4px; padding-top: 12px; }
+      .profile-table td:last-child { display: block; padding-top: 0; padding-bottom: 12px; }
     }
   </style>
 </head>
@@ -289,8 +304,8 @@
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">💬</div>
-          <h3>Real AI conversation</h3>
-          <p>Not a survey. Signal learns who you are through natural chat — your role, goals, what you consider noise.</p>
+          <h3>Quick setup, real AI</h3>
+          <p>Fill a short profile form, then chat with Signal briefly to fine-tune — no long surveys, no generic questions.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">📧</div>
@@ -305,7 +320,7 @@
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h3>Profile locked for 7 days</h3>
-          <p>Once you accept your profile it locks for 7 days — giving the algorithm time to tune your first digests.</p>
+          <p>Once you confirm your profile it locks for 7 days — giving the algorithm time to tune your digests.</p>
         </div>
       </div>
     </div>
@@ -319,22 +334,22 @@
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-content">
-            <h3>Have a real conversation</h3>
-            <p>Signal asks you smart questions — what you do, what you're building, what you want to avoid. No forms, no dropdowns. Just chat.</p>
+            <h3>Fill your profile in seconds</h3>
+            <p>Tell us your role, topics you follow, and any specific sources you want included. Takes about 60 seconds.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-content">
-            <h3>Review and approve your profile</h3>
-            <p>Signal drafts a summary of everything it learned. You review it, tweak it, then lock it in. Your profile shapes every digest.</p>
+            <h3>Quick AI chat to fine-tune</h3>
+            <p>Signal asks 3–4 follow-up questions to get the details right. Then it drafts your profile for you to confirm.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-content">
             <h3>Receive your daily digest</h3>
-            <p>Every morning, a crisp email lands in your inbox — top stories for you, one video worth your time, a tool, and one action.</p>
+            <p>Every morning, a crisp email lands in your inbox — top stories for you, one video, a tool, and one action.</p>
           </div>
         </div>
       </div>
@@ -352,7 +367,7 @@
           <div class="pricing-desc">Everything you need to get started.</div>
           <ul class="pricing-features">
             <li><span class="check">✓</span> Daily email digest</li>
-            <li><span class="check">✓</span> AI onboarding conversation</li>
+            <li><span class="check">✓</span> AI onboarding + profile setup</li>
             <li><span class="check">✓</span> Profile refresh every 7 days</li>
             <li><span class="check">✓</span> 3 digest sections</li>
           </ul>
@@ -366,8 +381,8 @@
           <ul class="pricing-features">
             <li><span class="check">✓</span> Everything in Starter</li>
             <li><span class="check">✓</span> 5 digest sections</li>
+            <li><span class="check">✓</span> Custom sources (YouTube, X, sites)</li>
             <li><span class="check">✓</span> WhatsApp delivery (soon)</li>
-            <li><span class="check">✓</span> Priority support</li>
             <li><span class="check">✓</span> Fine-tune profile anytime</li>
           </ul>
           <button class="btn-pricing filled" onclick="openAuthModal('signup')">Start Free Trial</button>
@@ -378,7 +393,7 @@
   </section>
 
   <footer>
-    <p>© 2026 Signal · <a href="#">Privacy</a> · <a href="#">Terms</a> · Not affiliated with xAI</p>
+    <p>© 2026 Signal · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
   </footer>
 </div>
 
@@ -413,36 +428,81 @@
 <!-- APP SHELL -->
 <div id="main-shell">
   <nav class="app-nav">
-    <div class="app-logo">Signal<span class="app-phase" id="phase-label">Onboarding</span></div>
+    <div class="app-logo">Signal<span class="app-phase" id="phase-label">Setup</span></div>
     <div class="app-nav-btns">
-      <button class="app-hbtn" id="api-btn" onclick="openApiModal()">API key</button>
       <button class="app-hbtn" onclick="resetAll()">Reset</button>
     </div>
   </nav>
 
-  <div class="modal-overlay" id="api-modal">
-    <div class="modal">
-      <div class="modal-title">Grok API Key</div>
-      <p>Set <strong>GROK_API_KEY</strong> in Vercel env — visitors won't need a key. Paste here for local dev only.</p>
-      <label>API Key</label>
-      <input type="password" id="api-input" placeholder="xai-…" autocomplete="off" />
-      <div class="modal-btns">
-        <button class="btn-modal-cancel" onclick="closeApiModal()">Cancel</button>
-        <button class="btn-modal-save" onclick="saveApiKey()">Save</button>
-      </div>
+  <!-- ONBOARDING FORM VIEW -->
+  <div id="onboarding-form-view" class="onboarding-shell">
+    <div class="onboarding-card">
+      <h2>Set up your profile</h2>
+      <p>Fill in what applies — Signal will use this to personalise your daily digest. Takes about 60 seconds.</p>
+
+      <table class="profile-table">
+        <tr>
+          <td>Your name</td>
+          <td><input type="text" id="pf-name" placeholder="How should we address you?" /></td>
+        </tr>
+        <tr>
+          <td>Profession &amp; industry</td>
+          <td><input type="text" id="pf-profession" placeholder="e.g. Product Manager at a SaaS startup" /></td>
+        </tr>
+        <tr>
+          <td>Topics to follow</td>
+          <td>
+            <div class="topic-chips" id="topic-chips">
+              <span class="topic-chip" onclick="toggleChip(this)">AI &amp; ML</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Startups</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Product</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Engineering</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Marketing</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Finance</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Design</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Web3</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Geopolitics</span>
+              <span class="topic-chip" onclick="toggleChip(this)">Climate</span>
+            </div>
+            <input type="text" id="pf-custom-topics" placeholder="Other topics…" style="margin-top:10px;" />
+          </td>
+        </tr>
+        <tr>
+          <td>Custom sources <span style="font-weight:400;color:var(--dim);">(Pro)</span></td>
+          <td>
+            <textarea id="pf-sources" rows="2" placeholder="e.g. ycombinator.com, @levelsio on X, Lex Fridman YouTube channel"></textarea>
+            <p class="field-hint">Websites, YouTube channels, X accounts you want included</p>
+          </td>
+        </tr>
+        <tr>
+          <td>What to avoid</td>
+          <td><input type="text" id="pf-avoid" placeholder="e.g. crypto speculation, celebrity news" /></td>
+        </tr>
+        <tr>
+          <td>Digest tone</td>
+          <td>
+            <select id="pf-tone">
+              <option value="">Select preference…</option>
+              <option value="concise">Concise &amp; scannable</option>
+              <option value="detailed">Detailed with context</option>
+              <option value="analytical">Analytical / data-heavy</option>
+              <option value="casual">Casual &amp; conversational</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+
+      <button class="btn-start-chat" onclick="submitProfileForm()">Continue to quick chat →</button>
     </div>
   </div>
 
-  <div id="profile-cta" class="profile-cta">
-    <span id="profile-cta-text">You've shared <strong id="user-turns-display">6</strong> messages — ready to build your profile?</span>
-    <button class="btn-cta-generate" id="profile-cta-btn" onclick="generateProfileSummary()">Build my profile →</button>
-  </div>
-
-  <div id="chat-view" style="display:flex; flex-direction:column; flex:1;">
+  <!-- CHAT VIEW -->
+  <div id="chat-view" style="display:none; flex-direction:column; flex:1;">
     <div class="chat-body" id="chat-body"><div class="chat-inner" id="chat-inner"></div></div>
     <div class="input-area" id="input-area" style="display:none;"><div class="input-inner" id="input-inner"></div></div>
   </div>
 
+  <!-- LOCKED / DASHBOARD VIEW -->
   <div id="locked-view" class="locked-view" style="display:none;">
     <div class="locked-icon">✅</div>
     <p style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--green); margin-bottom:10px;">Profile Locked</p>
@@ -452,10 +512,10 @@
     <button class="btn-digest" onclick="showDigest()">Preview today's digest →</button>
   </div>
 
+  <!-- DIGEST VIEW -->
   <div id="digest-view" class="digest-view" style="display:none;">
     <div class="digest-header">
       <div><p style="font-size:1.1rem; font-weight:600; margin-bottom:3px;">Today's digest</p><p id="digest-date" style="font-size:13px; color:var(--muted);"></p></div>
-      <button class="app-hbtn" onclick="openApiModal()">API key</button>
     </div>
     <div id="digest-body"></div>
   </div>
@@ -464,58 +524,27 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-const STORAGE = { lock: "signal_lock_until", profile: "signal_profile", msgs: "signal_messages", email: "signal_email" };
-const LS_GROK = "signal_grok_key";
+const STORAGE = {
+  lock: "signal_lock_until",
+  profile: "signal_profile",
+  msgs: "signal_messages",
+  email: "signal_email",
+  profileForm: "signal_profile_form",
+  plan: "signal_plan",
+};
 const LEGACY_LOCK = "digest_locked";
 const LEGACY_ANSWERS = "digest_answers";
-const OPENING = `Hey — I'm Signal. I learn what actually matters to you so your daily update is not generic noise.\n\nIn your own words: what do you do, what world do you work in, and what's on your mind lately?`;
 
-let apiKey = localStorage.getItem(LS_GROK) || "";
 let chatMessages = [], summaryHtmlSnapshot = "", summaryPhase = false, sending = false;
+let profileFormData = {};
 
+// ── UTILS ─────────────────────────────────────────────────────────────────
 function escapeHtml(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 function formatBotHtml(t) { return escapeHtml(t).replace(/\n/g, "<br/>"); }
 function toast(msg) { const el = document.getElementById("toast"); el.textContent = msg; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 4200); }
 function userTurnCount() { return chatMessages.filter(m => m.role === "user").length; }
 
-function updateProfileCta(emailCollected = false, readyForSummary = false) {
-  const bar = document.getElementById("profile-cta");
-  const n = userTurnCount();
-  document.getElementById("user-turns-display").textContent = String(n);
-  if (summaryPhase || document.getElementById("chat-view").style.display === "none") { bar.classList.remove("visible"); return; }
-  if (n >= 6) {
-    bar.classList.add("visible");
-    const t = document.getElementById("profile-cta-text");
-    if (emailCollected || readyForSummary) {
-      t.innerHTML = `✅ Email collected · <strong>${n} messages</strong> — ready to build your profile!`;
-      if (readyForSummary && !summaryPhase) setTimeout(() => generateProfileSummary(), 1200);
-    } else {
-      t.innerHTML = `<strong>${n} messages</strong> — Signal still needs your <strong>email address</strong> to send your digest.`;
-    }
-  } else { bar.classList.remove("visible"); }
-}
-
-function tryMigrateLegacy() {
-  const locked = localStorage.getItem(LEGACY_LOCK), saved = localStorage.getItem(LEGACY_ANSWERS);
-  if (!locked || !saved) return false;
-  const until = new Date(locked);
-  if (until <= new Date()) return false;
-  let answers; try { answers = JSON.parse(saved); } catch { return false; }
-  const narrative = ["Profession","Goal","Challenge","Sources","YouTube","Delivery","Email"].map(k => { const v = answers[k.toLowerCase()]; return v ? `${k}: ${v}` : null; }).filter(Boolean).join("\n");
-  localStorage.setItem(STORAGE.profile, narrative || "Legacy profile");
-  localStorage.setItem(STORAGE.lock, locked);
-  return true;
-}
-
-window.onload = () => {
-  updateApiBtn();
-  if (tryMigrateLegacy()) { showLockedView(new Date(localStorage.getItem(STORAGE.lock)), localStorage.getItem(STORAGE.profile)); return; }
-  const lock = localStorage.getItem(STORAGE.lock), prof = localStorage.getItem(STORAGE.profile);
-  if (lock && prof && new Date(lock) > new Date()) { showLockedView(new Date(lock), prof); return; }
-  document.getElementById("landing-view").style.display = "flex";
-  document.getElementById("main-shell").style.display = "none";
-};
-
+// ── AUTH ──────────────────────────────────────────────────────────────────
 function openAuthModal(tab = "signup") { switchAuthTab(tab); document.getElementById("auth-modal").classList.add("open"); }
 function closeAuthModal() { document.getElementById("auth-modal").classList.remove("open"); }
 function switchAuthTab(tab) {
@@ -530,83 +559,141 @@ function handleSignup() {
   const pass = document.getElementById("auth-pass").value.trim();
   if (!name || !email || !pass) { toast("Please fill in all fields."); return; }
   if (pass.length < 8) { toast("Password must be at least 8 characters."); return; }
-  if (email) localStorage.setItem(STORAGE.email, email);
-  closeAuthModal(); startOnboarding();
+  localStorage.setItem(STORAGE.email, email);
+  // Pre-fill name in profile form
+  document.getElementById("pf-name").value = name;
+  closeAuthModal();
+  showOnboardingForm();
 }
 function handleLogin() {
   const email = document.getElementById("login-email").value.trim();
   const pass = document.getElementById("login-pass").value.trim();
   if (!email || !pass) { toast("Please enter your email and password."); return; }
+  localStorage.setItem(STORAGE.email, email);
   const lock = localStorage.getItem(STORAGE.lock), prof = localStorage.getItem(STORAGE.profile);
   if (lock && prof && new Date(lock) > new Date()) { closeAuthModal(); showLockedView(new Date(lock), prof); return; }
-  closeAuthModal(); startOnboarding();
+  closeAuthModal();
+  showOnboardingForm();
 }
 
-function openApiModal() { document.getElementById("api-modal").classList.add("open"); document.getElementById("api-input").value = apiKey; }
-function closeApiModal() { document.getElementById("api-modal").classList.remove("open"); }
-function saveApiKey() {
-  const val = document.getElementById("api-input").value.trim();
-  apiKey = val;
-  if (val) localStorage.setItem(LS_GROK, val); else localStorage.removeItem(LS_GROK);
-  updateApiBtn(); closeApiModal();
-}
-function updateApiBtn() {
-  const btn = document.getElementById("api-btn");
-  if (apiKey) { btn.textContent = "API ✓"; btn.classList.add("active"); } else { btn.textContent = "API key"; btn.classList.remove("active"); }
+// ── TOPIC CHIPS ────────────────────────────────────────────────────────────
+function toggleChip(el) { el.classList.toggle("selected"); }
+function getSelectedTopics() {
+  return Array.from(document.querySelectorAll(".topic-chip.selected")).map(el => el.textContent.trim());
 }
 
-function startOnboarding() {
+// ── ONBOARDING FORM ───────────────────────────────────────────────────────
+function showOnboardingForm() {
   document.getElementById("landing-view").style.display = "none";
   document.getElementById("main-shell").style.display = "flex";
-  document.getElementById("phase-label").textContent = "Onboarding";
-  document.getElementById("chat-view").style.display = "flex";
+  document.getElementById("phase-label").textContent = "Setup";
+  document.getElementById("onboarding-form-view").style.display = "flex";
+  document.getElementById("chat-view").style.display = "none";
   document.getElementById("locked-view").style.display = "none";
   document.getElementById("digest-view").style.display = "none";
-  document.getElementById("chat-inner").innerHTML = "";
-  chatMessages = [{ role: "assistant", content: OPENING }];
+}
+
+function submitProfileForm() {
+  const name = document.getElementById("pf-name").value.trim();
+  const profession = document.getElementById("pf-profession").value.trim();
+  const selectedTopics = getSelectedTopics();
+  const customTopics = document.getElementById("pf-custom-topics").value.trim();
+  const allTopics = [...selectedTopics, ...(customTopics ? [customTopics] : [])].join(", ");
+  const sources = document.getElementById("pf-sources").value.trim();
+  const avoid = document.getElementById("pf-avoid").value.trim();
+  const tone = document.getElementById("pf-tone").value;
+
+  if (!profession && !allTopics) {
+    toast("Please fill in at least your profession or topics."); return;
+  }
+
+  profileFormData = {
+    name: name || null,
+    profession: profession || null,
+    topics: allTopics || null,
+    customSources: sources || null,
+    avoid: avoid || null,
+    tone: tone || null,
+  };
+  // Remove nulls
+  Object.keys(profileFormData).forEach(k => { if (!profileFormData[k]) delete profileFormData[k]; });
+
+  localStorage.setItem(STORAGE.profileForm, JSON.stringify(profileFormData));
+  startOnboardingChat();
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────────────
+function buildOpeningMessage(form) {
+  const name = form.name ? `, ${form.name}` : "";
+  const prof = form.profession ? `a ${form.profession}` : "someone in your field";
+  const topics = form.topics ? `You've said you follow: ${form.topics}.` : "";
+  const sources = form.customSources ? `You also want updates from ${form.customSources}.` : "";
+  return `Hey${name}! I can see you're ${prof}. ${topics} ${sources}\n\nI just have a few quick questions to make sure your digest is really specific to you — won't take long. What's the main thing you're trying to stay on top of right now?`.replace(/\s{2,}/g, " ").replace("  \n\n", "\n\n");
+}
+
+function startOnboardingChat() {
+  document.getElementById("onboarding-form-view").style.display = "none";
+  document.getElementById("chat-view").style.display = "flex";
+  document.getElementById("phase-label").textContent = "Chat";
+
+  const opening = buildOpeningMessage(profileFormData);
+  chatMessages = [{ role: "assistant", content: opening }];
   summaryPhase = false; summaryHtmlSnapshot = "";
+  document.getElementById("chat-inner").innerHTML = "";
   renderHistory();
   document.getElementById("input-area").style.display = "block";
-  renderChatInput(); updateProfileCta();
+  renderChatInput();
 }
 
 function renderHistory() {
   const inner = document.getElementById("chat-inner"); inner.innerHTML = "";
-  for (const m of chatMessages) { if (m.role === "user") appendUserBubble(m.content, false); else appendAssistantBubble(m.content, false); }
+  for (const m of chatMessages) {
+    if (m.role === "user") appendUserBubble(m.content, false);
+    else appendAssistantBubble(m.content, false);
+  }
   scrollBottom();
 }
+
 function appendUserBubble(text, scroll = true) {
   const inner = document.getElementById("chat-inner");
   const row = document.createElement("div"); row.className = "msg user";
   row.innerHTML = `<div class="msg-bubble">${formatBotHtml(text)}</div>`;
   inner.appendChild(row); if (scroll) scrollBottom();
 }
+
 function appendAssistantBubble(text, scroll = true) {
   const inner = document.getElementById("chat-inner");
   const row = document.createElement("div"); row.className = "msg bot";
   row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(text)}</div>`;
   inner.appendChild(row); if (scroll) scrollBottom();
 }
-function scrollBottom() { requestAnimationFrame(() => { const b = document.getElementById("chat-body"); b.scrollTop = b.scrollHeight; }); }
+
+function scrollBottom() {
+  requestAnimationFrame(() => {
+    const b = document.getElementById("chat-body");
+    if (b) b.scrollTop = b.scrollHeight;
+  });
+}
+
 function renderChatInput() {
   document.getElementById("input-inner").innerHTML = `<div class="input-row"><textarea id="user-input" rows="1" placeholder="Message Signal…" onkeydown="handleKey(event)"></textarea><button type="button" class="send-btn" id="send-btn" onclick="submitChat()">Send</button></div>`;
   setTimeout(() => document.getElementById("user-input")?.focus(), 80);
 }
+
 function handleKey(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitChat(); } }
 
 async function apiChat(body) {
-  const payload = { ...body };
-  if (apiKey) payload.apiKey = apiKey;
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 60000);
-  let res;
-  try { res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: ctrl.signal }); }
-  catch (e) { clearTimeout(to); if (e.name === "AbortError") throw new Error("Request timed out."); throw e; }
-  clearTimeout(to);
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
   const raw = await res.text(); let data = {};
   try { data = raw ? JSON.parse(raw) : {}; } catch { throw new Error(raw.slice(0, 180) || "Invalid JSON"); }
   if (!res.ok) throw new Error(data.error || res.statusText || "Request failed");
-  if (["chat","summary","digest"].includes(body.action) && (typeof data.content !== "string" || !data.content.trim())) throw new Error(data.error || "Empty reply from AI.");
+  if (["chat","summary","digest"].includes(body.action) && (typeof data.content !== "string" || !data.content.trim())) {
+    throw new Error(data.error || "Empty reply from AI.");
+  }
   return data;
 }
 
@@ -622,59 +709,75 @@ async function submitChat() {
   chatMessages.push({ role: "user", content: val });
   appendUserBubble(val);
   localStorage.setItem(STORAGE.msgs, JSON.stringify(chatMessages));
+
+  // Typing indicator
   const inner = document.getElementById("chat-inner");
-  const typing = document.createElement("div"); typing.className = "typing"; typing.id = "chat-typing";
-  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  const typing = document.createElement("div");
+  typing.className = "typing"; typing.id = "chat-typing";
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
   inner.appendChild(typing); scrollBottom();
+
   let lastData = {};
   try {
-    const data = await apiChat({ action: "chat", messages: chatMessages });
+    // Slight delay so typing indicator is visible (feels more natural)
+    const [data] = await Promise.all([
+      apiChat({ action: "chat", messages: chatMessages, profileForm: profileFormData }),
+      new Promise(r => setTimeout(r, 600)),
+    ]);
     lastData = data;
     document.getElementById("chat-typing")?.remove();
     chatMessages.push({ role: "assistant", content: data.content });
     appendAssistantBubble(data.content);
     localStorage.setItem(STORAGE.msgs, JSON.stringify(chatMessages));
+
+    // Auto-trigger summary if AI signals ready
+    if (data.readyForSummary && !summaryPhase) {
+      setTimeout(() => generateProfileSummary(), 1000);
+    }
   } catch (e) {
     document.getElementById("chat-typing")?.remove();
-    chatMessages.pop(); toast(e.message || "Chat failed");
-    renderChatInput(); document.getElementById("user-input").value = val;
+    chatMessages.pop();
+    toast(e.message || "Chat failed");
+    renderChatInput();
+    if (document.getElementById("user-input")) document.getElementById("user-input").value = val;
   } finally {
-    sending = false; if (btn) btn.disabled = false;
-    updateProfileCta(!!lastData.emailCollected, !!lastData.readyForSummary);
+    sending = false;
+    if (btn) btn.disabled = false;
   }
 }
 
+// ── SUMMARY ───────────────────────────────────────────────────────────────
 async function generateProfileSummary() {
   if (chatMessages.length === 0) return;
-  document.getElementById("profile-cta").classList.remove("visible");
   summaryPhase = true;
   document.getElementById("input-area").style.display = "none";
+
   const inner = document.getElementById("chat-inner");
-  const typing = document.createElement("div"); typing.className = "typing"; typing.id = "sum-typing";
-  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  const typing = document.createElement("div");
+  typing.className = "typing"; typing.id = "sum-typing";
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
   inner.appendChild(typing); scrollBottom();
+
   try {
-    const data = await apiChat({ action: "summary", messages: chatMessages });
+    const data = await apiChat({ action: "summary", messages: chatMessages, profileForm: profileFormData });
     document.getElementById("sum-typing")?.remove();
     summaryHtmlSnapshot = data.content;
-    if (data.email) localStorage.setItem(STORAGE.email, data.email);
-    const emailLine = data.email
-      ? `<p style="margin-top:14px;font-size:13px;color:var(--muted);padding:10px 14px;background:var(--accent-light);border-radius:8px;">📧 Digest → <strong style="color:var(--accent)">${data.email}</strong></p>`
-      : `<p style="margin-top:14px;font-size:13px;color:#92400E;padding:10px 14px;background:#FFFBEB;border-radius:8px;">⚠️ No email found — mention your email in adjustments.</p>`;
+
     const row = document.createElement("div"); row.className = "msg bot"; row.id = "sum-msg";
-    row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(data.content)}${emailLine}<div class="summary-actions"><button type="button" class="btn-accept" onclick="handleAccept()">Accept &amp; lock 7 days ✓</button><button type="button" class="btn-adjust" onclick="openAdjust()">Make adjustments</button></div></div>`;
+    row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(data.content)}<div class="summary-actions"><button type="button" class="btn-accept" onclick="handleAccept()">✓ Confirm &amp; go to dashboard</button><button type="button" class="btn-adjust" onclick="openAdjust()">Make adjustments</button></div></div>`;
     inner.appendChild(row); scrollBottom();
   } catch (e) {
     document.getElementById("sum-typing")?.remove();
     summaryPhase = false;
     document.getElementById("input-area").style.display = "block";
-    renderChatInput(); toast(e.message || "Summary failed"); updateProfileCta();
+    renderChatInput();
+    toast(e.message || "Summary failed");
   }
 }
 
 function openAdjust() {
   document.getElementById("input-area").style.display = "block";
-  document.getElementById("input-inner").innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500;">Adjustments</p><div class="input-row"><textarea id="adj-input" rows="1" placeholder="e.g. Less crypto, more EU policy…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdjust();}"></textarea><button type="button" class="send-btn" onclick="sendAdjust()">Send</button></div><p style="margin-top:10px;font-size:13px;color:var(--dim);">Or <button type="button" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;text-decoration:underline;" onclick="handleAccept()">accept as written</button></p>`;
+  document.getElementById("input-inner").innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500;">What would you like to change?</p><div class="input-row"><textarea id="adj-input" rows="1" placeholder="e.g. Less crypto, more EU policy…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdjust();}"></textarea><button type="button" class="send-btn" onclick="sendAdjust()">Send</button></div><p style="margin-top:10px;font-size:13px;color:var(--dim);">Or <button type="button" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;text-decoration:underline;" onclick="handleAccept()">confirm as written</button></p>`;
   document.getElementById("adj-input")?.focus();
 }
 
@@ -685,52 +788,65 @@ async function sendAdjust() {
   appendUserBubble(val);
   const inner = document.getElementById("chat-inner");
   const typing = document.createElement("div"); typing.className = "typing"; typing.id = "adj-typing";
-  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
   inner.appendChild(typing); scrollBottom();
   try {
-    const data = await apiChat({ action: "summary", messages: chatMessages, adjustment: val });
+    const [data] = await Promise.all([
+      apiChat({ action: "summary", messages: chatMessages, profileForm: profileFormData, adjustment: val }),
+      new Promise(r => setTimeout(r, 600)),
+    ]);
     document.getElementById("adj-typing")?.remove();
     document.getElementById("sum-msg")?.remove();
-    if (data.email) localStorage.setItem(STORAGE.email, data.email);
     summaryHtmlSnapshot = data.content;
-    const emailLine = data.email ? `<p style="margin-top:14px;font-size:13px;padding:10px 14px;background:var(--accent-light);border-radius:8px;">📧 Digest → <strong style="color:var(--accent)">${data.email}</strong></p>` : "";
     const row = document.createElement("div"); row.className = "msg bot"; row.id = "sum-msg";
-    row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(data.content)}${emailLine}<div class="summary-actions"><button type="button" class="btn-accept" onclick="handleAccept()">Accept &amp; lock 7 days ✓</button><button type="button" class="btn-adjust" onclick="openAdjust()">More adjustments</button></div></div>`;
+    row.innerHTML = `<div class="bot-avatar">S</div><div class="msg-bubble">${formatBotHtml(data.content)}<div class="summary-actions"><button type="button" class="btn-accept" onclick="handleAccept()">✓ Confirm &amp; go to dashboard</button><button type="button" class="btn-adjust" onclick="openAdjust()">More adjustments</button></div></div>`;
     inner.appendChild(row); scrollBottom();
-  } catch (e) { document.getElementById("adj-typing")?.remove(); toast(e.message || "Failed"); openAdjust(); }
+  } catch (e) {
+    document.getElementById("adj-typing")?.remove();
+    toast(e.message || "Failed");
+    openAdjust();
+  }
 }
 
 function handleAccept() {
   document.getElementById("input-area").style.display = "none";
-  appendUserBubble("Accepted ✓");
+  appendUserBubble("Confirmed ✓");
+
   const lockUntil = new Date(); lockUntil.setDate(lockUntil.getDate() + 7);
   const profileText = summaryHtmlSnapshot || chatMessages.map(m => `${m.role}: ${m.content}`).join("\n\n");
   const savedEmail = localStorage.getItem(STORAGE.email) || "";
+
   localStorage.setItem(STORAGE.lock, lockUntil.toISOString());
   localStorage.setItem(STORAGE.profile, profileText);
   localStorage.removeItem(STORAGE.msgs);
+
+  // Show brief confirmation then go to dashboard
   const inner = document.getElementById("chat-inner");
   const typing = document.createElement("div"); typing.className = "typing";
-  typing.innerHTML = `<div class="bot-avatar">S</div><div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+  typing.innerHTML = `<div class="bot-avatar">S</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
   inner.appendChild(typing); scrollBottom();
-  const msg = savedEmail
-    ? `You're all set! Profile locked for 7 days.\n\nYour daily digest will be sent to ${savedEmail} — first edition arriving tomorrow morning.\n\nPreview today's digest below.`
-    : `You're set. Profile locked for 7 days.\n\nEmail delivery coming soon — preview today's digest below.`;
+
   setTimeout(() => {
-    typing.remove(); appendAssistantBubble(msg, true);
-    setTimeout(() => showLockedView(lockUntil, profileText, savedEmail), 1400);
-  }, 500);
+    typing.remove();
+    const confirmMsg = savedEmail
+      ? `Profile locked for 7 days. Your daily digest will be sent to ${savedEmail} — first edition tomorrow morning.`
+      : `Profile locked for 7 days. Setting up your dashboard now.`;
+    appendAssistantBubble(confirmMsg, true);
+    setTimeout(() => showLockedView(lockUntil, profileText, savedEmail), 1200);
+  }, 700);
 }
 
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
 function showLockedView(lockDate, profileText, email) {
   document.getElementById("landing-view").style.display = "none";
   document.getElementById("main-shell").style.display = "flex";
+  document.getElementById("onboarding-form-view").style.display = "none";
   document.getElementById("chat-view").style.display = "none";
   document.getElementById("input-area").style.display = "none";
   document.getElementById("locked-view").style.display = "flex";
   document.getElementById("digest-view").style.display = "none";
-  document.getElementById("profile-cta").classList.remove("visible");
-  document.getElementById("phase-label").textContent = "Locked";
+  document.getElementById("phase-label").textContent = "Dashboard";
+
   const daysLeft = Math.max(0, Math.ceil((lockDate - new Date()) / 86400000));
   document.getElementById("days-left").textContent = daysLeft === 0 ? "Unlocks today" : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`;
   const savedEmail = email || localStorage.getItem(STORAGE.email) || "";
@@ -750,9 +866,10 @@ function showDigest() {
 async function runDigest() {
   const bodyEl = document.getElementById("digest-body");
   const profileText = localStorage.getItem(STORAGE.profile) || "";
+  const plan = localStorage.getItem(STORAGE.plan) || "starter";
   bodyEl.innerHTML = `<div class="spinner"></div><p class="generating-text">Generating your digest…</p>`;
   try {
-    const data = await apiChat({ action: "digest", profile: { narrative: profileText } });
+    const data = await apiChat({ action: "digest", profile: { narrative: profileText }, plan });
     bodyEl.innerHTML = `<div class="digest-content">${formatBotHtml(data.content)}</div><div class="digest-btns"><button type="button" class="btn-refresh" onclick="runDigest()">↻ Refresh</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button></div>`;
   } catch (e) {
     bodyEl.innerHTML = `<div class="digest-content">${escapeHtml(e.message || "Could not generate digest.")}</div><div class="digest-btns" style="margin-top:12px;"><button type="button" class="btn-refresh" onclick="runDigest()">Retry</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button></div>`;
@@ -762,17 +879,43 @@ async function runDigest() {
 function backToLocked() {
   document.getElementById("digest-view").style.display = "none";
   document.getElementById("locked-view").style.display = "flex";
-  document.getElementById("phase-label").textContent = "Locked";
+  document.getElementById("phase-label").textContent = "Dashboard";
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function tryMigrateLegacy() {
+  const locked = localStorage.getItem(LEGACY_LOCK), saved = localStorage.getItem(LEGACY_ANSWERS);
+  if (!locked || !saved) return false;
+  const until = new Date(locked);
+  if (until <= new Date()) return false;
+  let answers; try { answers = JSON.parse(saved); } catch { return false; }
+  const narrative = ["Profession","Goal","Challenge","Sources","YouTube","Delivery","Email"].map(k => { const v = answers[k.toLowerCase()]; return v ? `${k}: ${v}` : null; }).filter(Boolean).join("\n");
+  localStorage.setItem(STORAGE.profile, narrative || "Legacy profile");
+  localStorage.setItem(STORAGE.lock, locked);
+  return true;
 }
 
 function resetAll() {
-  [STORAGE.lock, STORAGE.profile, STORAGE.msgs, STORAGE.email, LEGACY_LOCK, LEGACY_ANSWERS].forEach(k => localStorage.removeItem(k));
-  chatMessages = []; summaryPhase = false; summaryHtmlSnapshot = "";
-  ["chat-inner","digest-body"].forEach(id => document.getElementById(id).innerHTML = "");
-  ["input-area","chat-view","locked-view","digest-view","main-shell"].forEach(id => document.getElementById(id).style.display = "none");
+  Object.values(STORAGE).forEach(k => localStorage.removeItem(k));
+  [LEGACY_LOCK, LEGACY_ANSWERS].forEach(k => localStorage.removeItem(k));
+  chatMessages = []; summaryPhase = false; summaryHtmlSnapshot = ""; profileFormData = {};
+  ["chat-inner","digest-body"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
+  ["input-area","chat-view","locked-view","digest-view","main-shell","onboarding-form-view"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = "none";
+  });
   document.getElementById("landing-view").style.display = "flex";
-  document.getElementById("profile-cta").classList.remove("visible");
 }
+
+window.onload = () => {
+  if (tryMigrateLegacy()) { showLockedView(new Date(localStorage.getItem(STORAGE.lock)), localStorage.getItem(STORAGE.profile)); return; }
+  const lock = localStorage.getItem(STORAGE.lock), prof = localStorage.getItem(STORAGE.profile);
+  if (lock && prof && new Date(lock) > new Date()) { showLockedView(new Date(lock), prof); return; }
+  // Restore saved form data if any
+  const savedForm = localStorage.getItem(STORAGE.profileForm);
+  if (savedForm) { try { profileFormData = JSON.parse(savedForm); } catch { profileFormData = {}; } }
+  document.getElementById("landing-view").style.display = "flex";
+  document.getElementById("main-shell").style.display = "none";
+};
 </script>
 </body>
 </html>
