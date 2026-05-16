@@ -846,6 +846,18 @@ async function apiChat(body) {
   return data;
 }
 
+async function apiSendEmail(body) {
+  const res = await fetch("/api/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const raw = await res.text(); let data = {};
+  try { data = raw ? JSON.parse(raw) : {}; } catch { throw new Error(raw.slice(0, 180) || "Invalid JSON"); }
+  if (!res.ok) throw new Error(data.error || res.statusText || "Send failed");
+  return data;
+}
+
 async function submitChat() {
   if (sending || summaryPhase) return;
   const input = document.getElementById("user-input");
@@ -981,6 +993,23 @@ function handleAccept() {
       ? `Profile locked for 7 days. Your daily digest will be sent to ${savedEmail} — first edition tomorrow morning.`
       : `Profile locked for 7 days. Setting up your dashboard now.`;
     appendAssistantBubble(confirmMsg, true);
+
+    // Send welcome email via Resend (fire-and-forget)
+    if (savedEmail) {
+      const savedForm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
+      apiSendEmail({
+        action: "welcome",
+        email: savedEmail,
+        name: savedForm.name || "",
+        profileSummary: profileText,
+        unlockDate: lockUntil.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }),
+      }).then(() => {
+        toast("✉️ Welcome email sent to " + savedEmail);
+      }).catch(err => {
+        console.warn("Welcome email failed:", err.message);
+      });
+    }
+
     setTimeout(() => showLockedView(lockUntil, profileText, savedEmail), 1200);
   }, 700);
 }
@@ -1177,13 +1206,33 @@ function showDigest() {
 async function runDigest() {
   const bodyEl = document.getElementById("digest-body");
   const profileText = localStorage.getItem(STORAGE.profile) || "";
+  const savedEmail = localStorage.getItem(STORAGE.email) || "";
+  const savedForm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
   const plan = localStorage.getItem(STORAGE.plan) || "starter";
   bodyEl.innerHTML = `<div class="spinner"></div><p class="generating-text">Generating your digest…</p>`;
   try {
     const data = await apiChat({ action: "digest", profile: { narrative: profileText }, plan });
-    bodyEl.innerHTML = `<div class="digest-content">${formatBotHtml(data.content)}</div><div class="digest-btns"><button type="button" class="btn-refresh" onclick="runDigest()">↻ Refresh</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button></div>`;
+    bodyEl.innerHTML = `<div class="digest-content">${formatBotHtml(data.content)}</div><div class="digest-btns"><button type="button" class="btn-refresh" onclick="runDigest()">↻ Refresh</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button>${savedEmail ? `<button type="button" class="btn-refresh" onclick="sendDigestEmail()">✉️ Email to me</button>` : ""}</div>`;
+    // Auto-send digest email if user has email
+    if (savedEmail) {
+      window._lastDigestContent = data.content;
+    }
   } catch (e) {
     bodyEl.innerHTML = `<div class="digest-content">${escapeHtml(e.message || "Could not generate digest.")}</div><div class="digest-btns" style="margin-top:12px;"><button type="button" class="btn-refresh" onclick="runDigest()">Retry</button><button type="button" class="btn-back" onclick="backToLocked()">← Back</button></div>`;
+  }
+}
+
+async function sendDigestEmail() {
+  const savedEmail = localStorage.getItem(STORAGE.email) || "";
+  const savedForm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
+  const content = window._lastDigestContent || "";
+  if (!savedEmail || !content) { toast("No email or digest content available."); return; }
+  toast("Sending digest to " + savedEmail + "…");
+  try {
+    await apiSendEmail({ action: "digest", email: savedEmail, name: savedForm.name || "", digestContent: content });
+    toast("✅ Digest sent to " + savedEmail);
+  } catch (err) {
+    toast("Email failed: " + err.message);
   }
 }
 
