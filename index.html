@@ -994,6 +994,28 @@ function handleAccept() {
       : `Profile locked for 7 days. Setting up your dashboard now.`;
     appendAssistantBubble(confirmMsg, true);
 
+    // Save user + profile to MongoDB
+    if (savedEmail) {
+      const savedForm2 = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
+      fetch("/api/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: savedEmail,
+          name: savedForm2.name || "",
+          plan: localStorage.getItem(STORAGE.plan) || "starter",
+          lockedUntil: lockUntil.toISOString(),
+          profile: {
+            summary: profileText,
+            profession: savedForm2.profession || "",
+            topics: savedForm2.topics || "",
+            avoid: savedForm2.avoid || "",
+            digestTime: savedForm2.digestTime || "13:00",
+          }
+        })
+      }).catch(err => console.warn("DB save failed:", err.message));
+    }
+
     // Send welcome email via Resend (fire-and-forget)
     if (savedEmail) {
       const savedForm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
