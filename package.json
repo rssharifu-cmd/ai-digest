@@ -7,6 +7,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@vercel/node": "^3.2.29"
+    "@vercel/node": "^3.2.29",
+    "mongodb": "^6.5.0"
   }
 }
