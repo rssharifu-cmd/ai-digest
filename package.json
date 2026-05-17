@@ -2,12 +2,14 @@
   "name": "signal",
   "private": true,
   "version": "1.0.0",
-  "description": "Signal — public/ static + api/ serverless (Vercel native layout)",
+  "description": "Signal — World's most personalized AI news digest",
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
     "@vercel/node": "^3.2.29",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.5.0"
   }
 }
