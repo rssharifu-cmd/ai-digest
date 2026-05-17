@@ -1,8 +1,9 @@
 {
   "version": 2,
-  "routes": [
-    { "src": "/api/chat", "dest": "/api/chat.js" },
-    { "src": "/api/send", "dest": "/api/send.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/api/chat", "destination": "/api/chat.js" },
+    { "source": "/api/send", "destination": "/api/send.js" },
+    { "source": "/api/user", "destination": "/api/user.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
