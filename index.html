@@ -680,6 +680,7 @@ const STORAGE = {
   email: "signal_email",
   profileForm: "signal_profile_form",
   plan: "signal_plan",
+  token: "signal_jwt_token",
 };
 const LEGACY_LOCK = "digest_locked";
 const LEGACY_ANSWERS = "digest_answers";
@@ -702,27 +703,88 @@ function switchAuthTab(tab) {
   document.getElementById("tab-signup").classList.toggle("active", tab === "signup");
   document.getElementById("tab-login").classList.toggle("active", tab === "login");
 }
-function handleSignup() {
+async function handleSignup() {
   const name = document.getElementById("auth-name").value.trim();
   const email = document.getElementById("auth-email").value.trim();
   const pass = document.getElementById("auth-pass").value.trim();
   if (!name || !email || !pass) { toast("Please fill in all fields."); return; }
-  if (pass.length < 8) { toast("Password must be at least 8 characters."); return; }
-  localStorage.setItem(STORAGE.email, email);
-  // Pre-fill name in profile form
-  document.getElementById("pf-name").value = name;
-  closeAuthModal();
-  showOnboardingForm();
+  if (pass.length < 6) { toast("Password must be at least 6 characters."); return; }
+
+  const btn = document.querySelector("#auth-signup-form .btn-auth");
+  btn.disabled = true; btn.textContent = "Creating account…";
+
+  try {
+    const res = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "signup", email, password: pass, name }),
+    });
+    const data = await res.json();
+    if (!res.ok) { toast(data.error || "Signup failed"); btn.disabled = false; btn.textContent = "Create Account & Start →"; return; }
+
+    // Store JWT + user info
+    localStorage.setItem(STORAGE.token, data.token);
+    localStorage.setItem(STORAGE.email, email);
+    document.getElementById("pf-name").value = name;
+    closeAuthModal();
+    showOnboardingForm();
+  } catch (e) {
+    toast("Network error — try again.");
+    btn.disabled = false; btn.textContent = "Create Account & Start →";
+  }
 }
-function handleLogin() {
+
+async function handleLogin() {
   const email = document.getElementById("login-email").value.trim();
   const pass = document.getElementById("login-pass").value.trim();
   if (!email || !pass) { toast("Please enter your email and password."); return; }
-  localStorage.setItem(STORAGE.email, email);
-  const lock = localStorage.getItem(STORAGE.lock), prof = localStorage.getItem(STORAGE.profile);
-  if (lock && prof && new Date(lock) > new Date()) { closeAuthModal(); showLockedView(new Date(lock), prof); return; }
-  closeAuthModal();
-  showOnboardingForm();
+
+  const btn = document.querySelector("#auth-login-form .btn-auth");
+  btn.disabled = true; btn.textContent = "Signing in…";
+
+  try {
+    const res = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "login", email, password: pass }),
+    });
+    const data = await res.json();
+    if (!res.ok) { toast(data.error || "Login failed"); btn.disabled = false; btn.textContent = "Sign In →"; return; }
+
+    // Store JWT + user info
+    localStorage.setItem(STORAGE.token, data.token);
+    localStorage.setItem(STORAGE.email, email);
+
+    // Restore profile from server user object if it exists
+    if (data.user?.profile?.summary) {
+      localStorage.setItem(STORAGE.profile, data.user.profile.summary);
+    }
+    if (data.user?.profile?.lockedUntil) {
+      localStorage.setItem(STORAGE.lock, data.user.profile.lockedUntil);
+    }
+    if (data.user?.profile) {
+      localStorage.setItem(STORAGE.profileForm, JSON.stringify({
+        name: data.user.name || "",
+        profession: data.user.profile.profession || "",
+        topics: data.user.profile.topics || "",
+        avoid: data.user.profile.avoid || "",
+        digestTime: data.user.profile.digestTime || "08:00",
+      }));
+    }
+
+    closeAuthModal();
+
+    const lock = localStorage.getItem(STORAGE.lock);
+    const prof = localStorage.getItem(STORAGE.profile);
+    if (lock && prof && new Date(lock) > new Date()) {
+      showLockedView(new Date(lock), prof);
+    } else {
+      showOnboardingForm();
+    }
+  } catch (e) {
+    toast("Network error — try again.");
+    btn.disabled = false; btn.textContent = "Sign In →";
+  }
 }
 
 // ── TOPIC CHIPS ────────────────────────────────────────────────────────────
@@ -997,11 +1059,14 @@ function handleAccept() {
     // Save user + profile to MongoDB
     if (savedEmail) {
       const savedForm2 = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.profileForm) || "{}"); } catch { return {}; } })();
+      const _token = localStorage.getItem(STORAGE.token) || "";
       fetch("/api/user", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${_token}`,
+        },
         body: JSON.stringify({
-          email: savedEmail,
           name: savedForm2.name || "",
           plan: localStorage.getItem(STORAGE.plan) || "starter",
           lockedUntil: lockUntil.toISOString(),
@@ -1010,7 +1075,7 @@ function handleAccept() {
             profession: savedForm2.profession || "",
             topics: savedForm2.topics || "",
             avoid: savedForm2.avoid || "",
-            digestTime: savedForm2.digestTime || "13:00",
+            digestTime: savedForm2.digestTime || "08:00",
           }
         })
       }).catch(err => console.warn("DB save failed:", err.message));
@@ -1279,6 +1344,7 @@ function tryMigrateLegacy() {
 
 function resetAll() {
   Object.values(STORAGE).forEach(k => localStorage.removeItem(k));
+  localStorage.removeItem(STORAGE.token);
   [LEGACY_LOCK, LEGACY_ANSWERS].forEach(k => localStorage.removeItem(k));
   chatMessages = []; summaryPhase = false; summaryHtmlSnapshot = ""; profileFormData = {};
   ["chat-inner","digest-body"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
