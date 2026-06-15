@@ -489,7 +489,7 @@ async function confirmProfile() {
       }
       fetch("/api/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           action: "welcome",
           email: savedEmail,
@@ -511,7 +511,7 @@ async function confirmProfile() {
 async function apiChat(body) {
   const res = await fetch("/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(body),
   });
   const raw = await res.text();
@@ -533,7 +533,7 @@ async function apiChat(body) {
 async function apiNews(form) {
   const res = await fetch("/api/news", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({
       topics: form.topics || "technology, AI",
       profession: form.profession || "",
@@ -873,7 +873,7 @@ async function sendDigestEmail() {
   try {
     const res = await fetch("/api/send", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({
         action: "digest",
         email: savedEmail,

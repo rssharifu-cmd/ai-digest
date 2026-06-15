@@ -9,39 +9,13 @@
  * GET — returns authenticated user + profile + memory
  */
 
-const jwt = require("jsonwebtoken");
 const { getDb } = require("./db");
+const { cors, parseBody, extractEmail } = require("./http");
 const {
   buildMemoryFromOnboarding,
   applyFeedback,
   ensureMemory,
 } = require("./memory");
-
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-}
-
-function parseBody(req) {
-  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) return req.body;
-  const raw = typeof req.body === "string" ? req.body : "";
-  try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-}
-
-function extractEmail(req) {
-  const secret = (process.env.JWT_SECRET || "").trim();
-  if (!secret) return null;
-  const header = req.headers?.authorization || "";
-  if (!header.startsWith("Bearer ")) return null;
-  const token = header.slice(7).trim();
-  try {
-    const decoded = jwt.verify(token, secret);
-    return decoded.email || null;
-  } catch {
-    return null;
-  }
-}
 
 function safeUser(user) {
   const { passwordHash, ...rest } = user;
@@ -49,7 +23,7 @@ function safeUser(user) {
 }
 
 async function handler(req, res) {
-  cors(res);
+  cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
 
   const email = extractEmail(req);
@@ -104,22 +78,32 @@ async function handler(req, res) {
       if (body.name) update.$set.name = body.name;
       if (body.plan) update.$set.plan = body.plan;
 
-      if (body.profile) {
+      const incomingProfile = body.profile || null;
+      const incomingSettings = body.settings || null;
+
+      if (incomingProfile || incomingSettings) {
+        const existingProfile = user?.profile || {};
+        const settings = incomingSettings || {};
+        const source = incomingProfile || existingProfile;
         const profile = {
-          summary: body.profile.summary || "",
-          profession: body.profile.profession || "",
-          goals: body.profile.goals || "",
-          topics: body.profile.topics || "",
-          avoid: body.profile.avoid || "",
-          customSources: body.profile.customSources || "",
-          language: body.profile.language || "English",
-          country: body.profile.country || "",
-          newsScope: body.profile.newsScope || "Mixed",
-          digestLength: body.profile.digestLength || "Standard",
-          tone: body.profile.tone || "",
-          digestTime: body.profile.digestTime || "08:00",
-          timezone: body.profile.timezone || "UTC",
-          lockedUntil: body.lockedUntil ? new Date(body.lockedUntil) : null,
+          summary: source.summary || existingProfile.summary || "",
+          profession: source.profession || existingProfile.profession || "",
+          goals: source.goals || existingProfile.goals || "",
+          topics: source.topics || existingProfile.topics || "",
+          avoid: source.avoid || settings.avoid || existingProfile.avoid || "",
+          customSources: source.customSources || existingProfile.customSources || "",
+          language: source.language || settings.language || existingProfile.language || "English",
+          country: source.country || settings.country || existingProfile.country || "",
+          newsScope: source.newsScope || settings.newsScope || existingProfile.newsScope || "Mixed",
+          digestLength: source.digestLength || settings.digestLength || existingProfile.digestLength || "Standard",
+          tone: source.tone || settings.tone || existingProfile.tone || "",
+          digestTime: source.digestTime || settings.digestTime || existingProfile.digestTime || "08:00",
+          timezone: source.timezone || settings.timezone || existingProfile.timezone || "UTC",
+          digestFrequency: source.digestFrequency || settings.digestFrequency || existingProfile.digestFrequency || "daily",
+          notifications: settings.notifications ?? existingProfile.notifications ?? true,
+          learningEnabled: settings.learningEnabled ?? existingProfile.learningEnabled ?? true,
+          analyticsEnabled: settings.analyticsEnabled ?? existingProfile.analyticsEnabled ?? true,
+          lockedUntil: body.lockedUntil ? new Date(body.lockedUntil) : existingProfile.lockedUntil || null,
           savedAt: now,
         };
         update.$set.profile = profile;

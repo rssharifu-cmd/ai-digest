@@ -18,21 +18,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { getDb } = require("./db");
+const { cors, parseBody } = require("./http");
 
 const SALT_ROUNDS = 10;
 const JWT_EXPIRES = "7d";
-
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-}
-
-function parseBody(req) {
-  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) return req.body;
-  const raw = typeof req.body === "string" ? req.body : "";
-  try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-}
 
 function signToken(payload, secret) {
   return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES });
@@ -55,7 +44,7 @@ function safeUser(user) {
 }
 
 async function handler(req, res) {
-  cors(res);
+  cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
 
   const jwtSecret = (process.env.JWT_SECRET || "").trim();
@@ -112,7 +101,7 @@ async function handler(req, res) {
         name,
         passwordHash,
         plan: "starter",
-        active: false,        // activated after Stripe payment (Week 4)
+        active: true,
         profile: null,
         createdAt: now,
         updatedAt: now,

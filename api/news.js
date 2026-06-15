@@ -19,18 +19,7 @@
 const TAVILY_URL  = "https://api.tavily.com/search";
 const YOUTUBE_URL = "https://www.googleapis.com/youtube/v3/search";
 const TIMEOUT_MS  = 20000;
-
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-}
-
-function parseBody(req) {
-  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) return req.body;
-  const raw = typeof req.body === "string" ? req.body : "";
-  try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-}
+const { cors, parseBody, requireEmail } = require("./http");
 
 function withTimeout(promise, ms) {
   return Promise.race([
@@ -253,7 +242,7 @@ async function fetchYouTubeVideo(topics, profession, apiKey) {
 
 // ── HANDLER ───────────────────────────────────────────────────────────────────
 async function handler(req, res) {
-  cors(res);
+  cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
 
   if (req.method === "GET") {
@@ -261,6 +250,7 @@ async function handler(req, res) {
   }
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!requireEmail(req, res)) return;
 
   const tavilyKey  = (process.env.TAVILY_API_KEY  || "").trim();
   const youtubeKey = (process.env.YOUTUBE_API_KEY || "").trim();

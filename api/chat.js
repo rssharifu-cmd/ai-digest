@@ -7,6 +7,8 @@
 
 const { formatMemoryForPrompt, buildDigestPrompt } = require("./memory");
 const { GoogleGenAI } = require("@google/genai");
+const { getGeminiModel, getGroqApiKey } = require("./config");
+const { cors, parseBody, requireEmail } = require("./http");
 
 const GROK_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.3-70b-versatile";
@@ -45,12 +47,6 @@ Rules:
 - When you feel you have enough to build a good digest profile (after 3–5 user messages), say warmly that you have everything and you're ready to draft their profile summary. Do not output the summary yet — the app will trigger that separately.
 - Never ask them to paste API keys or credentials.`;
 
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
 async function grokFetch(apiKey, payload) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), GROK_TIMEOUT_MS);
@@ -69,20 +65,8 @@ async function grokFetch(apiKey, payload) {
   }
 }
 
-function parseBody(req) {
-  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
-    return req.body;
-  }
-  const raw = typeof req.body === "string" ? req.body : "";
-  try {
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
 async function handler(req, res) {
-  cors(res);
+  cors(req, res);
 
   if (req.method === "OPTIONS") return res.status(204).end();
 
@@ -95,10 +79,12 @@ async function handler(req, res) {
   }
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!requireEmail(req, res)) return;
 
   try {
     const body = parseBody(req);
-    const apiGrokKey = (process.env.GROK_API_KEY || "").trim();
+    const apiGrokKey = getGroqApiKey();
+    const geminiModel = getGeminiModel();
 
     const action = body.action || "chat";
 
@@ -147,7 +133,7 @@ async function handler(req, res) {
         }));
 
         const response = await aiClient.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: geminiModel,
           contents: contents,
           config: {
             systemInstruction: system,
@@ -158,7 +144,7 @@ async function handler(req, res) {
       } else {
         if (!apiGrokKey) {
           return res.status(400).json({
-            error: "Missing API key. Provide GEMINI_API_KEY or GROK_API_KEY.",
+            error: "Missing API key. Provide GEMINI_API_KEY or GROQ_API_KEY.",
           });
         }
         const grokRes = await grokFetch(apiGrokKey, {
@@ -228,7 +214,7 @@ End with exactly this line on its own:
 
       if (aiClient) {
         const response = await aiClient.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: geminiModel,
           contents: userPrompt,
           config: {
             systemInstruction: "You write tight, accurate user profiles for a personalized digest product. Use only facts from the form and chat. Be specific, not generic.",
@@ -239,7 +225,7 @@ End with exactly this line on its own:
       } else {
         if (!apiGrokKey) {
           return res.status(400).json({
-            error: "Missing API key. Provide GEMINI_API_KEY or GROK_API_KEY.",
+            error: "Missing API key. Provide GEMINI_API_KEY or GROQ_API_KEY.",
           });
         }
         const grokRes = await grokFetch(apiGrokKey, {
@@ -314,7 +300,7 @@ End with exactly this line on its own:
 
       if (aiClient) {
         const response = await aiClient.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: geminiModel,
           contents: prompt,
           config: {
             systemInstruction: "You are Signal — a personal intelligence system. You filter global noise into insights for one specific person. You never hallucinate. You explain WHY each item matters to them. You give actionable implications, not summaries.",
@@ -325,7 +311,7 @@ End with exactly this line on its own:
       } else {
         if (!apiGrokKey) {
           return res.status(400).json({
-            error: "Missing API key. Provide GEMINI_API_KEY or GROK_API_KEY.",
+            error: "Missing API key. Provide GEMINI_API_KEY or GROQ_API_KEY.",
           });
         }
         const isPro = body.plan === "pro";

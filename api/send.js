@@ -12,18 +12,7 @@
  */
 
 const RESEND_URL = "https://api.resend.com/emails";
-
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
-function parseBody(req) {
-  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) return req.body;
-  const raw = typeof req.body === "string" ? req.body : "";
-  try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-}
+const { cors, parseBody, requireEmail } = require("./http");
 
 // ── EMAIL TEMPLATES ───────────────────────────────────────────────────────────
 
@@ -142,7 +131,7 @@ function digestHtml({ name, digestContent, date }) {
 // ── HANDLER ───────────────────────────────────────────────────────────────────
 
 async function handler(req, res) {
-  cors(res);
+  cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
 
   if (req.method === "GET") {
@@ -150,6 +139,8 @@ async function handler(req, res) {
   }
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  const authedEmail = requireEmail(req, res);
+  if (!authedEmail) return;
 
   const apiKey = (process.env.RESEND_API_KEY || "").trim();
   const fromEmail = (process.env.FROM_EMAIL || "Signal <onboarding@resend.dev>").trim();
@@ -164,6 +155,9 @@ async function handler(req, res) {
     const toEmail = (body.email || "").trim();
 
     if (!toEmail) return res.status(400).json({ error: "email is required" });
+    if (toEmail.toLowerCase() !== authedEmail.toLowerCase()) {
+      return res.status(403).json({ error: "Cannot send email for another account." });
+    }
 
     let subject, html;
 

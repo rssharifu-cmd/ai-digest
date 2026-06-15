@@ -9,7 +9,7 @@ Professional onboarding, live-news pipeline, and a dashboard that generates real
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `GROK_API_KEY` | Yes | Groq API key (digest + chat) |
+| `GROQ_API_KEY` | Yes | Groq API key (digest + chat). `GROK_API_KEY` is still accepted as a legacy alias. |
 | `MONGODB_URI` | Yes | User profiles |
 | `JWT_SECRET` | Yes | Auth tokens |
 | `TAVILY_API_KEY` | Recommended | Live news search |
@@ -17,8 +17,9 @@ Professional onboarding, live-news pipeline, and a dashboard that generates real
 | `RESEND_API_KEY` | For email | Welcome + digest emails |
 | `FROM_EMAIL` | For email | Verified sender in Resend |
 | `CRON_SECRET` | For cron | Daily send job |
+| `ALLOWED_ORIGINS` | Optional | Comma-separated custom domains for browser API calls |
 
-3. Deploy. Cron runs daily at 08:00 UTC (`/api/cron`).
+3. Deploy. Cron runs hourly (`/api/cron`) and sends once per user at their configured local digest hour.
 
 ## How it works
 

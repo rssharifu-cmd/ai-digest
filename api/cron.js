@@ -12,7 +12,7 @@
  *     → MongoDB    — save digest record
  *
  * Required env vars:
- *   MONGODB_URI, GROK_API_KEY, RESEND_API_KEY,
+ *   MONGODB_URI, GROQ_API_KEY (or legacy GROK_API_KEY), RESEND_API_KEY,
  *   FROM_EMAIL, TAVILY_API_KEY, YOUTUBE_API_KEY
  *
  * Security: CRON_SECRET header must match env var
@@ -21,6 +21,7 @@
 
 const { getDb } = require("./db");
 const { formatMemoryForPrompt, buildDigestPrompt, ensureMemory } = require("./memory");
+const { getGeminiModel, getGroqApiKey } = require("./config");
 
 const GROK_URL      = "https://api.groq.com/openai/v1/chat/completions";
 const RESEND_URL    = "https://api.resend.com/emails";
@@ -38,6 +39,38 @@ function withTimeout(promise, ms) {
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function getLocalDateParts(date, timeZone) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timeZone || "UTC",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(date);
+    return Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  } catch {
+    return getLocalDateParts(date, "UTC");
+  }
+}
+
+function shouldSendNow(user, now = new Date()) {
+  const settings = user.profile || {};
+  const targetTime = settings.digestTime || "08:00";
+  const targetHour = targetTime.split(":")[0]?.padStart(2, "0") || "08";
+  const frequency = settings.digestFrequency || "daily";
+  if (user.active === false || frequency === "off") return false;
+
+  const parts = getLocalDateParts(now, settings.timezone || "UTC");
+  const localDate = `${parts.year}-${parts.month}-${parts.day}`;
+  if (parts.hour !== targetHour) return false;
+
+  const lastDigestDate = user.lastDigestDate || "";
+  return lastDigestDate !== localDate;
+}
 
 // ── FETCH NEWS (inline — avoids internal HTTP call) ───────────────────────────
 async function fetchNews(topics, profession, avoid) {
@@ -188,10 +221,10 @@ async function fetchNews(topics, profession, avoid) {
 
 // ── PERSONALIZED DIGEST GENERATION (Gemini with Groq Fallback) ────────────────
 async function generateDigest(user, news) {
-  const apiGrokKey = (process.env.GROK_API_KEY || "").trim();
+  const apiGrokKey = getGroqApiKey();
   const apiGeminiKey = (process.env.GEMINI_API_KEY || "").trim();
   if (!apiGrokKey && !apiGeminiKey) {
-    throw new Error("Neither GEMINI_API_KEY nor GROK_API_KEY is configured.");
+    throw new Error("Neither GEMINI_API_KEY nor GROQ_API_KEY is configured.");
   }
 
   const profile = user.profile || {};
@@ -253,7 +286,7 @@ async function generateDigest(user, news) {
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: getGeminiModel(),
       contents: prompt,
       config: {
         systemInstruction: "You are Signal — a personal intelligence system. Filter noise into insights for one person. Never hallucinate. Explain WHY. Give actionable implications.",
@@ -414,6 +447,10 @@ async function handler(req, res) {
           results.skipped++;
           continue;
         }
+        if (!shouldSendNow(user)) {
+          results.skipped++;
+          continue;
+        }
 
         const profile = user.profile;
         const topics  = profile.topics     || "technology, AI";
@@ -434,6 +471,11 @@ async function handler(req, res) {
 
         // 4. Save to MongoDB
         await saveDigest(db, user._id, user.email, digestContent);
+        const parts = getLocalDateParts(new Date(), profile.timezone || "UTC");
+        await db.collection("users").updateOne(
+          { email: user.email },
+          { $set: { lastDigestDate: `${parts.year}-${parts.month}-${parts.day}`, updatedAt: new Date() } }
+        );
 
         results.sent++;
 
