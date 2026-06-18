@@ -20,6 +20,7 @@ Professional onboarding, live-news pipeline, and a dashboard that generates real
 | `ALLOWED_ORIGINS` | Optional | Comma-separated custom domains for browser API calls |
 
 3. Deploy. Cron runs hourly (`/api/cron`) and sends once per user at their configured local digest hour.
+4. If Vercel does not auto-deploy after a push, confirm the project is linked to the `main` branch and redeploy the latest commit from the Deployments tab.
 
 ## How it works
 
